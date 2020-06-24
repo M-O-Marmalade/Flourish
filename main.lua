@@ -1,5 +1,108 @@
 --MyFirstTest--
 
+local function show_status(message)
+  renoise.app():show_status(message)
+  print(message)
+end
+
+local function flourish(song, pattern_amount, pattern_index, track_index, track_type, line_index)
+
+  if track_type == 1
+  then  
+    song.tracks[track_index].delay_column_visible = true
+  end
+
+end
+
+function hello_boi()
+
+  local song = renoise.song()
+  local pattern_amount = table.getn(song.patterns)
+  local pattern_index = song.selected_pattern_index
+  local track_index = song.selected_track_index
+  local track_type = song.selected_track.type
+  local line_index = song.selected_line_index
+
+  local time = 0 --rotary tester
+  local tension = 0
+
+  local vb = renoise.ViewBuilder()  
+
+  local DEFAULT_MARGIN = renoise.ViewBuilder.DEFAULT_CONTROL_MARGIN
+  local DEFAULT_CONTROL_HEIGHT = renoise.ViewBuilder.DEFAULT_CONTROL_HEIGHT  
+  
+  local prompt_title = "hello_boi"  
+  local prompt_content = vb:column {    
+    margin = DEFAULT_MARGIN,
+      
+    vb:text {   -- now add the first text into the inner column
+      text = "Total # of Patterns: " .. pattern_amount .. 
+        "\nCurrent Pattern: " .. pattern_index ..
+        "\nCurrent Track: " .. track_index ..
+        "\nTrack Type: " .. track_type ..
+        "\nCurrent Line: " .. line_index
+    },
+    
+    vb:row {
+      margin = DEFAULT_MARGIN,
+      
+      vb:text {
+        text = "Time"
+      },
+      
+      vb:rotary {
+        min = -1,
+        max = 1,
+        value = 0,
+        width = 2*DEFAULT_CONTROL_HEIGHT,
+        height = 2*DEFAULT_CONTROL_HEIGHT,
+        notifier = function(value)
+          show_status(("time = '%.2f'"):format(value))      
+          time = value
+          print("time = " .. time)
+        end
+      },     
+      
+    },--row close
+    
+    vb:row {
+      margin = DEFAULT_MARGIN,
+    
+      vb:text {
+        text = "Tension"
+      },
+    
+      vb:rotary {
+        min = -1,
+        max = 1,
+        value = 0,
+        width = 2*DEFAULT_CONTROL_HEIGHT,
+        height = 2*DEFAULT_CONTROL_HEIGHT,
+        notifier = function(value)
+          show_status(("tension = '%.2f'"):format(value))      
+          tension = value
+          print("tension = " .. tension)
+        end
+      }
+    
+    },--row close
+    
+    vb:button {
+      text = "Hit me",
+      width = 60,
+      notifier = function()
+        show_status("button was hit!")
+        flourish(song, pattern_amount, pattern_index, track_index, track_type, line_index)
+      end
+    }
+    
+  }--column close
+
+  renoise.app():show_custom_dialog(prompt_title, prompt_content)
+    
+end
+-----------------------------------------------------------------------------------------------------
+
 renoise.tool():add_menu_entry {
   name = "Main Menu:Tools:MyFirstTest:Hello Boi...",
   invoke = function() hello_boi() end
@@ -9,68 +112,3 @@ renoise.tool():add_keybinding {
   name = "Global:Tools:Hello Boi...",
   invoke = function() hello_boi() end 
 }
-
-function text_changed()
-renoise.app():show_status("text was changed")
-end
-
-function hello_boi()
-
-  local vb = renoise.ViewBuilder()
-  
-  -- get some consts to let the dialog look like Renoises default views...
-  local DEFAULT_MARGIN = renoise.ViewBuilder.DEFAULT_CONTROL_MARGIN
-    
-  
-  local prompt_title = "Hello Boi ._."
-  local prompt_buttons = {"xNO!", "OK!"};  
-  local prompt_content = vb:column {  -- start with a 'column' to stack other views vertically:
-    
-    margin = DEFAULT_MARGIN,  -- set a border of DEFAULT_MARGIN around our main content   
-    
-    vb:column { -- and create another column to align our text in a different background
-      
-      style = "group",  -- background that is usually used for "groups"      
-      
-      margin = DEFAULT_MARGIN,  -- add again some "borders" to make it more pretty      
-      
-      vb:text {   -- now add the first text into the inner column
-         text = "big, strong text\n"..
-         "Renoise API Version " .. renoise.API_VERSION .. 
-         "\nRenoise Version " .. renoise.RENOISE_VERSION,
-         font = "big",
-         style = "strong",
-         align = "center"
-      },
-         
-      vb:text {   -- now add the second text into the inner column
-         text = "bold, normal text\n"..
-         "Renoise API Version " .. renoise.API_VERSION .. 
-         "\nRenoise Version " .. renoise.RENOISE_VERSION,
-         font = "bold",
-         style = "normal",
-         align = "center"
-      },
-      
-      vb:text {   -- now add the second text into the inner column
-         text = "let's see if centered text will expand the window size\nand if it will stay centered\n"..
-         "Renoise API Version " .. renoise.API_VERSION .. 
-         "\nRenoise Version " .. renoise.RENOISE_VERSION,
-         font = "bold",
-         style = "normal",
-         align = "center"
-      },
-      
-      vb:textfield {
-        align = "center"
-      }
-            
-    }
-    
-  }
-
-  renoise.app():show_custom_prompt(prompt_title, prompt_content, prompt_buttons)
-
-end
-
-  -- lets go on and start to use some real controls (buttons & stuff) now...
