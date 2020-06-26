@@ -1,3 +1,10 @@
+
+y = x^2
+y = x^8
+y = x^0.2
+
+
+
 --[[notes = {}
 instruments = {}
 volumes = {}
