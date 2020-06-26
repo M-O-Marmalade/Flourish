@@ -1,1 +1,1 @@
-A .xrnx tool for Renoise
+A .xrnx tool for Renoise, used to create strums, flourishes, ripples, arpeggios, etc
