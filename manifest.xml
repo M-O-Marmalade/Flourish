@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RenoiseScriptingTool doc_version="0">
-  <Name>MyFirstTest</Name>
+  <Name>Flourish</Name>
   <Author>MOMarmalade [xephyrpanda@yahoo.com]</Author>
-  <Id>com.MOMarmalade.MyFirstTest</Id>
+  <Id>com.MOMarmalade.Flourish</Id>
   <Version>1.0</Version>
   <ApiVersion>6</ApiVersion>
   <Category>Tool Development</Category>
-  <Description>This is my first tool. It is simply a test.</Description>
+  <Description>A tool to create flourishes, strums, arpeggios, etc.</Description>
   <Homepage>https://xephyrpanda.wixsite.com/citrus64</Homepage>
 </RenoiseScriptingTool>

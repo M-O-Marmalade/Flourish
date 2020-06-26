@@ -203,11 +203,11 @@ end
 --MENU/HOTKEY ENTRIES--------------------------------------------------------------------------------
 
 renoise.tool():add_menu_entry {
-  name = "Main Menu:Tools:MyFirstTest:main_function...",
+  name = "Main Menu:Tools:M.O.Marmalade:Flourish...",
   invoke = function() main_function() end
 }
 
 renoise.tool():add_keybinding {
-  name = "Global:Tools:main_function...",
+  name = "Global:Tools:Flourish...",
   invoke = function() main_function() end 
 }
