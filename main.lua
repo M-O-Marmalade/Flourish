@@ -1,7 +1,7 @@
 --MyFirstTest--
 
 --GLOBALS--------------------------------------------------------------------------------------------
-
+song = renoise.song()
 app = renoise.app()
 pattern_amount = nil
 pattern_index = nil
@@ -9,7 +9,8 @@ track_index = nil
 track_type = nil
 line_index = nil
 
-cur_lin_obj = nil
+cur_lin_ref = nil
+cur_lin_clmn_vals = {}
 lns_in_sng = {}
 lns_in_sng_amount = nil
 notes_detected = 0
@@ -34,45 +35,77 @@ end
 --GET CURRENT LINE-----------------------------------------------------------------------------------
 local function get_current_line()  
 
-  track_type = renoise.song().selected_track.type--check the type of track that's selected
+  track_type = song.selected_track.type--check the type of track that's selected
     
   if track_type ~= 1 then --if the track is master or send, show error...
     app:show_error("Please move edit cursor to a non-Master/Send track! Master/Send tracks are not supported with the Flourish tool.")
     
   else --...otherwise, we store some indexing info in memory...  
 
-    pattern_amount = #renoise.song().patterns
-    pattern_index = renoise.song().selected_pattern_index
-    track_index = renoise.song().selected_track_index
-    line_index = renoise.song().selected_line_index  
+    pattern_amount = #song.patterns
+    pattern_index = song.selected_pattern_index
+    track_index = song.selected_track_index
+    line_index = song.selected_line_index  
+    cur_lin_ref = song.patterns[pattern_index].tracks[track_index]:line(line_index)
     
     notes_detected = 0 --...reset the amount of detected notes to 0...
     
+    --...we store the line values of all lines in track in song
     local y = 1
-    for pos,line in renoise.song().pattern_iterator:lines_in_track(track_index,true) do
-      lns_in_sng[y] = line
+    for pos,line in song.pattern_iterator:lines_in_track(track_index,true) do
+    
+      lns_in_sng[y] = {}
+    
+      local z = 1
+      while z < 13 do
+      
+        print("\nz = " .. z)
+      
+        lns_in_sng[y][z] = {
+        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].note_value,
+        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].instrument_value,
+        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].volume_value,
+        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].panning_value,
+        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].delay_value,
+        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].effect_number_value,
+        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].effect_amount_value
+        }
+        z = z + 1
+
+        
+      end--end 12 columns loop
+      
       y = y + 1
-    end
+      
+    end--end lines in song loop
+    
     print("recorded lines in track in song")
     lns_in_sng_amount = y - 1
     
-    print("lns_in_sng_amount = " .. lns_in_sng_amount)
-    for key, value in ipairs(lns_in_sng) do
-      print("\nkey: " .. key)
-      print("\nvalue: ") print(value)
+    --...we store the selected line values in cur_lin_clmn_vals..
+    local x = 1
+    while x < 13 do
+      cur_lin_clmn_vals[x] = {
+        cur_lin_ref.note_columns[x].note_value,
+        cur_lin_ref.note_columns[x].instrument_value,
+        cur_lin_ref.note_columns[x].volume_value,
+        cur_lin_ref.note_columns[x].panning_value,
+        cur_lin_ref.note_columns[x].delay_value,
+        cur_lin_ref.note_columns[x].effect_number_value,
+        cur_lin_ref.note_columns[x].effect_amount_value
+    }
+    x = x + 1
     end
     
-    --...we store the selected line in cur_lin_obj...
-    cur_lin_obj = renoise.song().patterns[pattern_index].tracks[track_index]:line(line_index)
-    print("cur_lin_obj: ") print(cur_lin_obj)
+    print("cur_lin_ref: ") print(cur_lin_ref)
   
     --...we detect the amount of note columns in the track that have notes...
     for i = 1, 12 do  
-      if not cur_lin_obj.note_columns[i].is_empty then notes_detected = i end
+      if not cur_lin_ref.note_columns[i].is_empty then notes_detected = i end
     end    
     
     --...show the delay columns for the selected track...
-    renoise.song().tracks[track_index].delay_column_visible = true 
+    song.tracks[track_index].delay_column_visible = true 
     
     --...and confirm the new line selection to the user in the status bar
     show_status("Line " .. line_index .. " in Pattern " .. pattern_index .. " was selected for Flourish!")
@@ -95,18 +128,49 @@ local function flourish()
   
   local y = 1
   while y < lns_in_sng_amount do
-      renoise.song().patterns[pattern_index].tracks[track_index].lines[y]:copy_from(lns_in_sng[y])
-      y = y + 1
+  
+    local z = 1
+    while z < 13 do
+    
+      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].note_value = lns_in_sng[y][z][1]
+      
+      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].instrument_value = lns_in_sng[y][z][2]
+      
+      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].volume_value = lns_in_sng[y][z][3]
+      
+      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].panning_value = lns_in_sng[y][z][4]
+      
+      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].delay_value = lns_in_sng[y][z][5]
+      
+      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].effect_number_value = lns_in_sng[y][z][6]
+      
+      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].effect_amount_value = lns_in_sng[y][z][7]
+      
+      z = z + 1
+      
     end
+    
+    y = y + 1
+    
+  end
+  
   print("ptn trk restored!")
   
   for i = 1, notes_detected do
+  
+    song.patterns[pattern_index].tracks[track_index].lines[line_index].note_columns[i]:clear()
 
     --find correct line/note column to copy to
-    local column_to_copy_to = renoise.song().patterns[pattern_index].tracks[track_index].lines[line_index + (math.floor(((i - 1) * time) / 256))].note_columns[i]
+    local column_to_copy_to = song.patterns[pattern_index].tracks[track_index].lines[line_index + (math.floor(((i - 1) * time) / 256))].note_columns[i]
     
-    --copy the values into the new line/note column
-    column_to_copy_to:copy_from(cur_lin_obj.note_columns[i])
+    --copy the values into the new line/note column      
+    column_to_copy_to.note_value = cur_lin_clmn_vals[i][1]
+    column_to_copy_to.instrument_value = cur_lin_clmn_vals[i][2]
+    column_to_copy_to.volume_value = cur_lin_clmn_vals[i][3]
+    column_to_copy_to.panning_value = cur_lin_clmn_vals[i][4]
+    column_to_copy_to.delay_value = cur_lin_clmn_vals[i][5] --we dont need the delay
+    column_to_copy_to.effect_number_value = cur_lin_clmn_vals[i][6]
+    column_to_copy_to.effect_amount_value = cur_lin_clmn_vals[i][7]
   
     --delay value to apply to the new line/note column
     column_to_copy_to.delay_value = math.floor(((i - 1) * time) % 256)    
