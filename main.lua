@@ -1,7 +1,7 @@
 --MyFirstTest--
 
 --GLOBALS--------------------------------------------------------------------------------------------
-song = renoise.song()
+song = nil
 app = renoise.app()
 pattern_amount = nil
 pattern_index = nil
@@ -33,7 +33,9 @@ local function show_status(message)
 end
 
 --GET CURRENT LINE-----------------------------------------------------------------------------------
-local function get_current_line()  
+local function get_current_line() 
+
+  song = renoise.song() 
 
   track_type = song.selected_track.type--check the type of track that's selected
     
@@ -62,13 +64,13 @@ local function get_current_line()
         print("\nz = " .. z)
       
         lns_in_sng[y][z] = {
-        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].note_value,
-        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].instrument_value,
-        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].volume_value,
-        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].panning_value,
-        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].delay_value,
-        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].effect_number_value,
-        song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].effect_amount_value
+        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).note_value,
+        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).instrument_value,
+        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).volume_value,
+        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).panning_value,
+        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).delay_value,
+        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).effect_number_value,
+        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).effect_amount_value
         }
         z = z + 1
 
@@ -86,13 +88,13 @@ local function get_current_line()
     local x = 1
     while x < 13 do
       cur_lin_clmn_vals[x] = {
-        cur_lin_ref.note_columns[x].note_value,
-        cur_lin_ref.note_columns[x].instrument_value,
-        cur_lin_ref.note_columns[x].volume_value,
-        cur_lin_ref.note_columns[x].panning_value,
-        cur_lin_ref.note_columns[x].delay_value,
-        cur_lin_ref.note_columns[x].effect_number_value,
-        cur_lin_ref.note_columns[x].effect_amount_value
+        cur_lin_ref:note_column(x).note_value,
+        cur_lin_ref:note_column(x).instrument_value,
+        cur_lin_ref:note_column(x).volume_value,
+        cur_lin_ref:note_column(x).panning_value,
+        cur_lin_ref:note_column(x).delay_value,
+        cur_lin_ref:note_column(x).effect_number_value,
+        cur_lin_ref:note_column(x).effect_amount_value
     }
     x = x + 1
     end
@@ -101,7 +103,7 @@ local function get_current_line()
   
     --...we detect the amount of note columns in the track that have notes...
     for i = 1, 12 do  
-      if not cur_lin_ref.note_columns[i].is_empty then notes_detected = i end
+      if not cur_lin_ref:note_column(i).is_empty then notes_detected = i end
     end    
     
     --...show the delay columns for the selected track...
@@ -132,19 +134,19 @@ local function flourish()
     local z = 1
     while z < 13 do
     
-      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].note_value = lns_in_sng[y][z][1]
+      song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).note_value = lns_in_sng[y][z][1]
       
-      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].instrument_value = lns_in_sng[y][z][2]
+      song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).instrument_value = lns_in_sng[y][z][2]
       
-      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].volume_value = lns_in_sng[y][z][3]
+      song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).volume_value = lns_in_sng[y][z][3]
       
-      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].panning_value = lns_in_sng[y][z][4]
+      song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).panning_value = lns_in_sng[y][z][4]
       
-      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].delay_value = lns_in_sng[y][z][5]
+      song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).delay_value = lns_in_sng[y][z][5]
       
-      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].effect_number_value = lns_in_sng[y][z][6]
+      song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).effect_number_value = lns_in_sng[y][z][6]
       
-      song.patterns[pattern_index].tracks[track_index].lines[y].note_columns[z].effect_amount_value = lns_in_sng[y][z][7]
+      song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).effect_amount_value = lns_in_sng[y][z][7]
       
       z = z + 1
       
@@ -158,10 +160,10 @@ local function flourish()
   
   for i = 1, notes_detected do
   
-    song.patterns[pattern_index].tracks[track_index].lines[line_index].note_columns[i]:clear()
+    song.patterns[pattern_index].tracks[track_index]:line(line_index):note_column(i):clear()
 
     --find correct line/note column to copy to
-    local column_to_copy_to = song.patterns[pattern_index].tracks[track_index].lines[line_index + (math.floor(((i - 1) * time) / 256))].note_columns[i]
+    local column_to_copy_to = song.patterns[pattern_index].tracks[track_index]:line(line_index + (math.floor(((i - 1) * time) / 256))):note_column(i)
     
     --copy the values into the new line/note column      
     column_to_copy_to.note_value = cur_lin_clmn_vals[i][1]
