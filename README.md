@@ -1,7 +1,7 @@
-#FLOURISH
+#FLOURISH#
 A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios, etc
 
-#TO_DO
+#TO_DO#
 -Allow flourishes to span multiple patterns
 -Implement tension in strums (logarithmic distribution of notes)
 -Reduce/remove lag from Non-Destructive workflow
