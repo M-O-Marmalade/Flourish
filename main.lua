@@ -21,9 +21,12 @@ notes_detected = 0
 time = 0
 tension = 0
 auto_apply = true
-non_destructive = false
+destructive = false
 pats_to_clear = {}
 lins_to_clear = {}
+column_vals_to_store = {}
+column_pats_to_store = {}
+column_lins_to_store = {}
 visible_columns_only = true
 
 local vb = renoise.ViewBuilder() 
@@ -41,20 +44,25 @@ end
 --FIND NEW LINE--------------------------------------------------------------------------------------
 local function find_new_line(seq, lin, offset)
   print("FIND_NEW_LINE()")
-  if seq == 0 then seq = #song.sequencer.pattern_sequence --wrap from beginning to end
-  elseif seq > #song.sequencer.pattern_sequence then seq = 1 --wrap from end to beginning
-  end
   
   --get the amount of lines in the current pattern
   local lines_in_this_pattern = #song.patterns[song.sequencer:pattern(seq)].tracks[track_index].lines
   
   --if our line index plus our offset is greater than the amount of lines in this pattern...
   if lin + offset > lines_in_this_pattern then
-    seq,lin = find_new_line(seq+1, 0, offset - (lines_in_this_pattern - lin)) --call function for next pattern
+    
+    local seq_to_pass = seq + 1
+    if seq_to_pass > #song.sequencer.pattern_sequence then seq_to_pass = 1 end--wrap from end to beginning
+    
+    seq,lin = find_new_line(seq_to_pass, 0, offset - (lines_in_this_pattern - lin)) --call next pattern
   
   --if our line index plus our offset results in 0 or less...
   elseif lin + offset < 1 then
-    seq,lin = find_new_line(seq-1, #song.patterns[song.sequencer:pattern(seq-1)].tracks[track_index].lines, offset + lin) --call function for prev pattern
+    
+    local seq_to_pass = seq - 1
+    if seq_to_pass == 0 then seq_to_pass = #song.sequencer.pattern_sequence end--wrap beginning to end
+    
+    seq,lin = find_new_line(seq_to_pass, #song.patterns[song.sequencer:pattern(seq_to_pass)].tracks[track_index].lines, offset + lin) --call function for prev pattern
   
   else
   
@@ -71,11 +79,18 @@ local function clear_columns_to_clear()
   print("CLEAR_COLUMNS_TO_CLEAR()")
   
   for i = 1, 12 do
-    pats_to_clear[i] = pattern_index
-  end
   
-  for i = 1, 12 do
+    pats_to_clear[i] = pattern_index
     lins_to_clear[i] = line_index
+    
+    column_pats_to_store[i] = pattern_index
+    column_lins_to_store[i] = line_index
+    
+    column_vals_to_store[i] = {}
+    for j = 1, 7 do
+      column_vals_to_store[i][j] = 0
+    end
+    
   end
   
 end
@@ -127,8 +142,9 @@ local function get_current_line()
   if track_type ~= 1 then --if the track is master or send, show error...
     app:show_error("Please move edit cursor to a non-Master/Send track! Master/Send tracks are not supported with the Flourish tool.")
     
-  else --...otherwise, we store some indexing info in memory... 
+  else --...if the track is a valid track, we...
    
+    --... store some indexing info in memory...
     sequence_size = #song.sequencer.pattern_sequence
     sequence_index = song.selected_sequence_index
     pattern_amount = #song.patterns
@@ -141,9 +157,6 @@ local function get_current_line()
     clear_columns_to_clear()--...clear our destructive columns clearing index
     
     notes_detected = 0 --...reset the amount of detected notes to 0...
-      
-    --...if the user has Non-Destructive editing activated, then store all lines in song...
-    if non_destructive then store_song_lines() end
     
     --...we store the selected line values in cur_lin_clmn_vals..
     local x = 1
@@ -165,7 +178,7 @@ local function get_current_line()
     --...we detect the amount of note columns in the track that have notes...
     for i = 1, 12 do  
       if not cur_lin_ref:note_column(i).is_empty then notes_detected = i end
-    end    
+    end
     
     --...show the delay columns for the selected track...
     song.tracks[track_index].delay_column_visible = true 
@@ -195,41 +208,6 @@ end
 --FLOURISH-------------------------------------------------------------------------------------------
 local function flourish()
   print("FLOURISH()")
-  --if the user has Non-Destructive editing activated, then...
-  if non_destructive then
-  
-    --...we restore all the lines for the selected track in the current pattern from cur_trk_lns_obj  
-    local y = 1
-    while y < lns_in_sng_amount do
-  
-      local z = 1
-      while z < 13 do
-    
-        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).note_value = lns_in_sng[y][z][1]
-      
-        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).instrument_value = lns_in_sng[y][z][2]
-      
-        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).volume_value = lns_in_sng[y][z][3]
-      
-        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).panning_value = lns_in_sng[y][z][4]
-      
-        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).delay_value = lns_in_sng[y][z][5]
-      
-        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).effect_number_value = lns_in_sng[y][z][6]
-      
-        song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).effect_amount_value = lns_in_sng[y][z][7]
-      
-        z = z + 1
-      
-      end--end while z
-    
-      y = y + 1
-    
-    end--end while y
-  
-  print("ptn trk restored!")
-  
-  end--end "if non_destructive" statement
   
   --clear the line that we're flourishing
   song.patterns[pattern_index].tracks[track_index]:line(line_index):clear()
@@ -253,7 +231,7 @@ local function flourish()
     --find correct note column reference to copy to
     local column_to_copy_to = song.patterns[new_pat_index].tracks[track_index]:line(new_lin_index):note_column(i)
     
-    if not non_destructive then --if we are not preserving what we end up flourishing over...
+    if destructive then --if we are not preserving what we end up flourishing over...
 
       --...clear the columns where we previously moved our notes to
       song.patterns[pats_to_clear[i]].tracks[track_index]:line(lins_to_clear[i]):note_column(i):clear()
@@ -261,10 +239,46 @@ local function flourish()
       --...store/update our new columns to clear next time around
       pats_to_clear[i] = new_pat_index
       lins_to_clear[i] = new_lin_index
-      
-    end--end "if not non_destructive"
     
-    --copy the values into the new line/note column      
+    else --if we are preserving what we end up flourishing over...
+      
+      --get a reference to the column where we previously stored values from
+      local clmn_to_restore_to = song.patterns[column_pats_to_store[i]].tracks[track_index]:line(column_lins_to_store[i]):note_column(i)
+      
+      for j = 1, 7 do --restore all values for the column we are about to leave from
+        
+        clmn_to_restore_to.note_value = column_vals_to_store[i][1]
+        clmn_to_restore_to.instrument_value = column_vals_to_store[i][2]
+        clmn_to_restore_to.volume_value = column_vals_to_store[i][3]
+        clmn_to_restore_to.panning_value = column_vals_to_store[i][4]
+        clmn_to_restore_to.delay_value = column_vals_to_store[i][5]
+        clmn_to_restore_to.effect_number_value = column_vals_to_store[i][6]
+        clmn_to_restore_to.effect_amount_value = column_vals_to_store[i][7]
+             
+      end      
+            
+    
+      column_pats_to_store[i] = new_pat_index --store the pattern that we will need to restore to later
+      column_lins_to_store[i] = new_lin_index --store the line in that pattern that we will restore to
+      column_vals_to_store[i] = {} --create an empty table to store our values
+      
+      
+      
+      for j = 1, 7 do --store all values for the column we are about to overwrite
+        
+        column_vals_to_store[i][1] = column_to_copy_to.note_value
+        column_vals_to_store[i][2] = column_to_copy_to.instrument_value
+        column_vals_to_store[i][3] = column_to_copy_to.volume_value
+        column_vals_to_store[i][4] = column_to_copy_to.panning_value
+        column_vals_to_store[i][5] = column_to_copy_to.delay_value
+        column_vals_to_store[i][6] = column_to_copy_to.effect_number_value
+        column_vals_to_store[i][7] = column_to_copy_to.effect_amount_value
+             
+      end
+    
+    end
+    
+    --overwrite all values in the column we are flourishing our note into    
     column_to_copy_to.note_value = cur_lin_clmn_vals[i][1]
     column_to_copy_to.instrument_value = cur_lin_clmn_vals[i][2]
     column_to_copy_to.volume_value = cur_lin_clmn_vals[i][3]
@@ -319,7 +333,7 @@ function create_flourish_window()
       
       vb:minislider {
         id = "time_slider",
-        tooltip = "the time over which to spread the notes",
+        tooltip = "The time over which to spread the notes",
         min = -2277,
         max = 2277,
         value = 0,
@@ -366,11 +380,11 @@ function create_flourish_window()
      vb:row {
       margin = DEFAULT_MARGIN,
       vb:text {
-        text = "Non-Destructive [Laggy!]"
+        text = "Destructive"
       },      
       vb:checkbox {
-        tooltip = "Flourish will keep track of content and will not overwrite any pattern data until a new line is set to be edited (this stores the entire song in memory, so it is very slow, only to be used in delicate circumstances)",
-        value = non_destructive,
+        tooltip = "Content of lines will be destroyed as you move through them",
+        value = destructive,
         notifier = function(value)
           clear_columns_to_clear()--...clear our destructive columns clearing index
           --...reset our sliders to 0
@@ -379,8 +393,10 @@ function create_flourish_window()
           vb.views.tension_slider.value = 0
           tension = 0
           flourish()
-          non_destructive = value
+          destructive = value
+--[[
           if value then store_song_lines() end
+--]]
         end
       }
     },--auto-apply checkbox row close
