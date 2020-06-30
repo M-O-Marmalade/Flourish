@@ -1,16 +1,16 @@
 --Flourish - main.lua--
 
 --GLOBALS--------------------------------------------------------------------------------------------
-app = nil
-song = nil
+app = renoise.app()
+song = renoise.song()
 sequence_size = nil
-sequence_index = nil
+sequence_index = 0
 pattern_amount = nil
-pattern_index = nil
-track_index = nil
+pattern_index = 0
+track_index = 0
 track_type = nil
 line_amount = nil
-line_index = nil
+line_index = 0
 
 cur_lin_ref = nil
 cur_lin_clmn_vals = {}
@@ -22,8 +22,8 @@ time = 0
 tension = 0
 auto_apply = true
 non_destructive = false
-columns_to_clear_hi = {}
-columns_to_clear_lo = {}
+pats_to_clear = {}
+lins_to_clear = {}
 visible_columns_only = true
 
 local vb = renoise.ViewBuilder() 
@@ -69,11 +69,15 @@ end
 --CLEAR COLUMNS_TO_CLEAR-----------------------------------------------------------------------------
 local function clear_columns_to_clear()
   print("CLEAR_COLUMNS_TO_CLEAR()")
-  for key,value in pairs(columns_to_clear_hi) do
-    print("\nkey: " .. key .. "  previous value: " .. value)
-    columns_to_clear_hi[key] = 0
-    print("  new value: " .. columns_to_clear_hi[key])
+  
+  for i = 1, 12 do
+    pats_to_clear[i] = pattern_index
   end
+  
+  for i = 1, 12 do
+    lins_to_clear[i] = line_index
+  end
+  
 end
 
 --STORE SONG LINES-----------------------------------------------------------------------------------
@@ -181,10 +185,11 @@ end
 --UPDATE TEXT----------------------------------------------------------------------------------------
 local function update_text()
   print("UPDATE_TEXT()")
-  vb.views.my_text.text = "Selected Pattern: " .. pattern_index ..
-  "\nSelected Track: " .. track_index ..
-  "\nSelected Line: " .. line_index ..
-  "\n" .. notes_detected .. " Note Columns selected"
+  vb.views.my_text.text = "Selected Sequence: " .. sequence_index - 1 ..
+        "\nSelected Pattern: " .. pattern_index - 1 ..
+        "\nSelected Track: " .. track_index ..
+        "\nSelected Line: " .. line_index - 1 ..
+        "\n" .. notes_detected .. " Note Columns selected"
 end
 
 --FLOURISH-------------------------------------------------------------------------------------------
@@ -245,36 +250,18 @@ local function flourish()
     --convert sequence index to pattern index
     local new_pat_index = song.sequencer:pattern(new_seq_index)
     
-    --update our indexes of lines to clear for this column
-    if columns_to_clear_hi[i] == nil or columns_to_clear_hi[i] < line_index_offset then
-      columns_to_clear_hi[i] = line_index_offset
-    end
-    
-    if columns_to_clear_lo[i] == nil or columns_to_clear_lo[i] > line_index_offset then
-      columns_to_clear_lo[i] = line_index_offset
-    end
-    
-    print("columns_to_clear_hi[",i,"]: ", columns_to_clear_hi[i])
-    
     --find correct note column reference to copy to
     local column_to_copy_to = song.patterns[new_pat_index].tracks[track_index]:line(new_lin_index):note_column(i)
     
     if not non_destructive then --if we are not preserving what we end up flourishing over...
-    
-      --...clear all columns in the range of our flourish for this note
-      local t = columns_to_clear_lo[i]
-      while t <= math.abs(columns_to_clear_hi[i]) do
+
+      --...clear the columns where we previously moved our notes to
+      song.patterns[pats_to_clear[i]].tracks[track_index]:line(lins_to_clear[i]):note_column(i):clear()
       
-        --find correct sequence/line to clear in this note column
-        local seq_to_clr,ln_to_clr = find_new_line(sequence_index,line_index,t)
-        
-        --convert the sequence index to a pattern index
-        local pat_ind_to_clr = song.sequencer:pattern(seq_to_clr)
-        
-        --clear the specified line in the specified pattern for this note column
-        song.patterns[pat_ind_to_clr].tracks[track_index]:line(ln_to_clr):note_column(i):clear()
-        t = t + 1
-      end--end while t
+      --...store/update our new columns to clear next time around
+      pats_to_clear[i] = new_pat_index
+      lins_to_clear[i] = new_lin_index
+      
     end--end "if not non_destructive"
     
     --copy the values into the new line/note column      
@@ -306,9 +293,10 @@ function create_flourish_window()
       id = "my_text",
       style = "normal",
       font = "bold",
-      text = "Selected Pattern: " .. pattern_index ..
+      text = "Selected Sequence: " .. sequence_index - 1 ..
+        "\nSelected Pattern: " .. pattern_index - 1 ..
         "\nSelected Track: " .. track_index ..
-        "\nSelected Line: " .. line_index ..
+        "\nSelected Line: " .. line_index - 1 ..
         "\n" .. notes_detected .. " Note Columns selected"
     },
   
@@ -316,52 +304,48 @@ function create_flourish_window()
       margin = DEFAULT_MARGIN,
       mode = "distribute",
       
-      vb:column {
-        margin = DEFAULT_MARGIN,
-    
-        vb:text {
-          text = "Time"
-        },
-    
-        vb:minislider {
-          id = "time_slider",
-          tooltip = "the time over which to spread the notes",
-          min = -727,
-          max = 727,
-          value = 0,
-          width = 20,
-          height = 150,
-          notifier = function(value)     
-            time = -value
-            show_status(("Time: %.2f"):format(time))
-            if auto_apply then flourish() end
-          end
-        }        
-      },--Time slider column close  
-      
-      vb:column {
-        margin = DEFAULT_MARGIN,
-    
-        vb:text {
-        text = "Tension"        
-        },
-  
-        vb:minislider {
-          id = "tension_slider",
-          tooltip = "(not yet implemented)",
-          min = -1,
-          max = 1,
-          value = 0,
-          width = 20,
-          height = 150,
-          notifier = function(value)                
-            tension = value
-            show_status(("Tension: %.2f"):format(tension))
-            if auto_apply then flourish() end
-          end
-        }
+      vb:text {
+        text = "Time"
+      },
         
-      }--Tension slider column close 
+      vb:text {
+        text = "Tension"        
+      }
+    },
+    
+    vb:horizontal_aligner {
+      margin = DEFAULT_MARGIN,
+      mode = "distribute",
+      
+      vb:minislider {
+        id = "time_slider",
+        tooltip = "the time over which to spread the notes",
+        min = -2277,
+        max = 2277,
+        value = 0,
+        width = 17,
+        height = 150,
+        notifier = function(value)     
+          time = -value
+          show_status(("Time: %.2f"):format(time))
+          if auto_apply then flourish() end
+        end
+      },
+      
+      vb:minislider {
+        id = "tension_slider",
+        tooltip = "(not yet implemented)",
+        min = -1,
+        max = 1,
+        value = 0,
+        width = 17,
+        height = 150,
+        notifier = function(value)                
+          tension = value
+          show_status(("Tension: %.2f"):format(tension))
+          if auto_apply then flourish() end
+        end
+      }
               
     },--row close
     
@@ -388,6 +372,7 @@ function create_flourish_window()
         tooltip = "Flourish will keep track of content and will not overwrite any pattern data until a new line is set to be edited (this stores the entire song in memory, so it is very slow, only to be used in delicate circumstances)",
         value = non_destructive,
         notifier = function(value)
+          clear_columns_to_clear()--...clear our destructive columns clearing index
           --...reset our sliders to 0
           vb.views.time_slider.value = 0
           time = 0
@@ -395,7 +380,6 @@ function create_flourish_window()
           tension = 0
           flourish()
           non_destructive = value
-          clear_columns_to_clear()--...clear our destructive columns clearing index
           if value then store_song_lines() end
         end
       }
@@ -445,6 +429,12 @@ local function main_function()
   end
 end
 
+--SHOW WINDOW WITHOUT SETTING A NEW NOTE-------------------------------------------------------------
+local function show_window_only()
+  if not flourish_window_created then create_flourish_window() end
+  if not flourish_window_obj or not flourish_window_obj.visible then show_flourish_window() end
+end
+
 --MENU/HOTKEY ENTRIES--------------------------------------------------------------------------------
 
 renoise.tool():add_menu_entry {
@@ -454,7 +444,7 @@ renoise.tool():add_menu_entry {
 
 renoise.tool():add_menu_entry {
   name = "Main Menu:Tools:M.O.Marmalade:Flourish - Show Window...",
-  invoke = function() show_flourish_window() end
+  invoke = function() show_window_only() end
 }
 
 renoise.tool():add_menu_entry {
