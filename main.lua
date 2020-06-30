@@ -22,7 +22,8 @@ time = 0
 tension = 0
 auto_apply = true
 non_destructive = false
-columns_to_clear = {}
+columns_to_clear_hi = {}
+columns_to_clear_lo = {}
 visible_columns_only = true
 
 local vb = renoise.ViewBuilder() 
@@ -68,10 +69,10 @@ end
 --CLEAR COLUMNS_TO_CLEAR-----------------------------------------------------------------------------
 local function clear_columns_to_clear()
   print("CLEAR_COLUMNS_TO_CLEAR()")
-  for key,value in pairs(columns_to_clear) do
+  for key,value in pairs(columns_to_clear_hi) do
     print("\nkey: " .. key .. "  previous value: " .. value)
-    columns_to_clear[key] = 0
-    print("  new value: " .. columns_to_clear[key])
+    columns_to_clear_hi[key] = 0
+    print("  new value: " .. columns_to_clear_hi[key])
   end
 end
 
@@ -244,21 +245,25 @@ local function flourish()
     --convert sequence index to pattern index
     local new_pat_index = song.sequencer:pattern(new_seq_index)
     
-    --update our index of lines to clear for this column
-    if columns_to_clear[i] == nil or columns_to_clear[i] < line_index_offset then
-      columns_to_clear[i] = line_index_offset
+    --update our indexes of lines to clear for this column
+    if columns_to_clear_hi[i] == nil or columns_to_clear_hi[i] < line_index_offset then
+      columns_to_clear_hi[i] = line_index_offset
     end
     
-    print("Columns_to_clear[",i,"]: ", columns_to_clear[i])
+    if columns_to_clear_lo[i] == nil or columns_to_clear_lo[i] > line_index_offset then
+      columns_to_clear_lo[i] = line_index_offset
+    end
+    
+    print("columns_to_clear_hi[",i,"]: ", columns_to_clear_hi[i])
     
     --find correct note column reference to copy to
     local column_to_copy_to = song.patterns[new_pat_index].tracks[track_index]:line(new_lin_index):note_column(i)
     
     if not non_destructive then --if we are not preserving what we end up flourishing over...
     
-      --...clear all columns in the range between the starting line and the line to copy to for this note
-      local t = 1
-      while t <= math.abs(columns_to_clear[i]) do
+      --...clear all columns in the range of our flourish for this note
+      local t = columns_to_clear_lo[i]
+      while t <= math.abs(columns_to_clear_hi[i]) do
       
         --find correct sequence/line to clear in this note column
         local seq_to_clr,ln_to_clr = find_new_line(sequence_index,line_index,t)
