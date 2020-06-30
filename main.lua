@@ -39,7 +39,7 @@ end
 
 --FIND NEW LINE--------------------------------------------------------------------------------------
 local function find_new_line(seq, lin, offset)
-
+  print("FIND_NEW_LINE()")
   if seq == 0 then seq = #song.sequencer.pattern_sequence --wrap from beginning to end
   elseif seq > #song.sequencer.pattern_sequence then seq = 1 --wrap from end to beginning
   end
@@ -67,6 +67,7 @@ end
 
 --CLEAR COLUMNS_TO_CLEAR-----------------------------------------------------------------------------
 local function clear_columns_to_clear()
+  print("CLEAR_COLUMNS_TO_CLEAR()")
   for key,value in pairs(columns_to_clear) do
     print("\nkey: " .. key .. "  previous value: " .. value)
     columns_to_clear[key] = 0
@@ -76,7 +77,7 @@ end
 
 --STORE SONG LINES-----------------------------------------------------------------------------------
 local function store_song_lines()
-
+  print("STORE_SONG_LINES()")
 --...we store the line values of all lines in track in song
       local y = 1
       for pos,line in song.pattern_iterator:lines_in_track(track_index,true) do
@@ -112,7 +113,7 @@ end
 
 --GET CURRENT LINE-----------------------------------------------------------------------------------
 local function get_current_line() 
-
+  print("GET_CURRENT_LINE()")
   app = renoise.app()
   song = renoise.song()
 
@@ -178,6 +179,7 @@ end
 
 --UPDATE TEXT----------------------------------------------------------------------------------------
 local function update_text()
+  print("UPDATE_TEXT()")
   vb.views.my_text.text = "Selected Pattern: " .. pattern_index ..
   "\nSelected Track: " .. track_index ..
   "\nSelected Line: " .. line_index ..
@@ -186,7 +188,7 @@ end
 
 --FLOURISH-------------------------------------------------------------------------------------------
 local function flourish()
-  
+  print("FLOURISH()")
   --if the user has Non-Destructive editing activated, then...
   if non_destructive then
   
@@ -226,38 +228,46 @@ local function flourish()
   --clear the line that we're flourishing
   song.patterns[pattern_index].tracks[track_index]:line(line_index):clear()
   
-  for i = 1, notes_detected do
+  for i = 1, notes_detected do  --for each of the notes detected on the current line...
 
-    --find correct line offset to copy to
-    local line_index_offset = line_index - 1 + (math.floor(((i - 1) * time) / 256))  
+    --...find the correct line offset to copy to based on our current Time slider value
+    local line_index_offset = math.floor(((i - 1) * time) / 256)
     
     print("line_index: ",line_index)
     print("line_index_offset: ",line_index_offset)
     
-    --find correct sequence index, and line in that sequence index, to copy to
+    --...find correct sequence index, and line index in that sequence, to copy this note to...
     local new_seq_index,new_lin_index = find_new_line(sequence_index,line_index,line_index_offset)
     
     print("new_lin_index: ", new_lin_index)
     
-    --convert sequence index to pattern #
+    --convert sequence index to pattern index
     local new_pat_index = song.sequencer:pattern(new_seq_index)
     
-    --update our column clearing index if it has grown
+    --update our index of lines to clear for this column
     if columns_to_clear[i] == nil or columns_to_clear[i] < line_index_offset then
       columns_to_clear[i] = line_index_offset
     end
     
-    --find correct note column to copy to
+    print("Columns_to_clear[",i,"]: ", columns_to_clear[i])
+    
+    --find correct note column reference to copy to
     local column_to_copy_to = song.patterns[new_pat_index].tracks[track_index]:line(new_lin_index):note_column(i)
     
-
+    if not non_destructive then --if we are not preserving what we end up flourishing over...
     
-    if not non_destructive then
-    
-      --clear all columns in the range between the starting line and the line to copy to
+      --...clear all columns in the range between the starting line and the line to copy to for this note
       local t = 1
-      while t < math.abs(line_index - columns_to_clear[i] - 2) do
-        song.patterns[pattern_index].tracks[track_index]:line(line_index + t):note_column(i):clear()
+      while t <= math.abs(columns_to_clear[i]) do
+      
+        --find correct sequence/line to clear in this note column
+        local seq_to_clr,ln_to_clr = find_new_line(sequence_index,line_index,t)
+        
+        --convert the sequence index to a pattern index
+        local pat_ind_to_clr = song.sequencer:pattern(seq_to_clr)
+        
+        --clear the specified line in the specified pattern for this note column
+        song.patterns[pat_ind_to_clr].tracks[track_index]:line(ln_to_clr):note_column(i):clear()
         t = t + 1
       end--end while t
     end--end "if not non_destructive"
@@ -267,11 +277,11 @@ local function flourish()
     column_to_copy_to.instrument_value = cur_lin_clmn_vals[i][2]
     column_to_copy_to.volume_value = cur_lin_clmn_vals[i][3]
     column_to_copy_to.panning_value = cur_lin_clmn_vals[i][4]
-    column_to_copy_to.delay_value = cur_lin_clmn_vals[i][5] --we dont need the delay
+    --column_to_copy_to.delay_value = cur_lin_clmn_vals[i][5] --we dont need the delay value
     column_to_copy_to.effect_number_value = cur_lin_clmn_vals[i][6]
     column_to_copy_to.effect_amount_value = cur_lin_clmn_vals[i][7]
   
-    --delay value to apply to the new line/note column
+    --new delay value to apply to the new line/note column
     column_to_copy_to.delay_value = math.floor(((i - 1) * time) % 256)    
     
   end--for loop close
@@ -279,7 +289,7 @@ end
 
 --CREATE FLOURISH WINDOW-----------------------------------------------------------------------------
 function create_flourish_window()
-
+  print("CREATE_FLOURISH_WINDOW()")
   local DEFAULT_MARGIN = renoise.ViewBuilder.DEFAULT_CONTROL_MARGIN
   local DEFAULT_CONTROL_HEIGHT = renoise.ViewBuilder.DEFAULT_CONTROL_HEIGHT  
 
@@ -415,11 +425,13 @@ end--end function
 
 --SHOW FLOURISH WINDOW-------------------------------------------------------------------------------
 local function show_flourish_window()
+  print("SHOW_FLOURISH_WINDOW()")
   flourish_window_obj = app:show_custom_dialog(window_title, window_content)
 end
 
 --MAIN FUNCTION--------------------------------------------------------------------------------------
 local function main_function()
+  print("MAIN_FUNCTION()")
   get_current_line()
   if track_type == 1 then
     if not flourish_window_created then create_flourish_window() end
@@ -436,7 +448,7 @@ renoise.tool():add_menu_entry {
 }
 
 renoise.tool():add_menu_entry {
-  name = "Main Menu:Tools:M.O.Marmalade:Bring Back Flourish Window...",
+  name = "Main Menu:Tools:M.O.Marmalade:Flourish - Show Window...",
   invoke = function() show_flourish_window() end
 }
 
@@ -448,4 +460,9 @@ renoise.tool():add_menu_entry {
 renoise.tool():add_keybinding {
   name = "Global:Tools:Flourish...",
   invoke = function() main_function() end 
+}
+
+renoise.tool():add_keybinding {
+  name = "Global:Tools:Flourish - Show Window...",
+  invoke = function() show_flourish_window() end 
 }

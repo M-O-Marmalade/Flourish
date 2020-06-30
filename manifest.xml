@@ -5,7 +5,7 @@
   <Id>com.MOMarmalade.Flourish</Id>
   <Version>1.0</Version>
   <ApiVersion>6</ApiVersion>
-  <Category>Tool Development</Category>
-  <Description>A tool to create flourishes, strums, arpeggios, etc.</Description>
+  <Category>Pattern Editor</Category>
+  <Description>A tool to create flourishes, strums, arpeggios, ripples, etc.</Description>
   <Homepage>https://xephyrpanda.wixsite.com/citrus64</Homepage>
 </RenoiseScriptingTool>
