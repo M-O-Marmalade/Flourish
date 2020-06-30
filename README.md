@@ -2,7 +2,7 @@
 A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios, etc
 
 # TO_DO
-- Allow flourishes to span multiple patterns
+- Allow flourishes to span multiple patterns (without creating duplicate notes in other patterns)
 - Implement tension in strums (logarithmic distribution of notes)
 - Reduce/remove lag from Non-Destructive workflow
 - Improve automatic behaviour when opening/closing Flourish window, manipulating checkboxes, setting a new line to edit, etc...
