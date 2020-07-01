@@ -377,7 +377,7 @@ function create_flourish_window()
       }
     },--auto-apply checkbox row close
     
-     vb:row {
+    vb:row {
       margin = 1,
       vb:text {
         text = "Destructive"
@@ -386,10 +386,21 @@ function create_flourish_window()
         tooltip = "Content of lines will be destroyed as you move through them",
         value = destructive,
         notifier = function(value)
+          time = 0
+          vb.views.time_slider.value = 0
           destructive = value
+          if value then vb.views.destructive_bmp.bitmap = "Bitmaps/steamroller.bmp"
+          else vb.views.destructive_bmp.bitmap = "Bitmaps/stilts.bmp"
+          end
         end
-      }
-    },--auto-apply checkbox row close
+      },
+      vb:bitmap {
+        id = "destructive_bmp",
+        mode = "body_color",
+        bitmap = "Bitmaps/stilts.bmp"
+      }    
+      
+    },--destructive checkbox row close
     
     vb:horizontal_aligner {
       margin = 1,
