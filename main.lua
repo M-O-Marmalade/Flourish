@@ -337,7 +337,7 @@ function create_flourish_window()
         min = -2277,
         max = 2277,
         value = 0,
-        width = 17,
+        width = 20,
         height = 150,
         notifier = function(value)     
           time = -value
@@ -352,7 +352,7 @@ function create_flourish_window()
         min = -1,
         max = 1,
         value = 0,
-        width = 17,
+        width = 20,
         height = 150,
         notifier = function(value)                
           tension = value
@@ -401,8 +401,9 @@ function create_flourish_window()
       }
     },--auto-apply checkbox row close
     
-    vb:row {
+    vb:horizontal_aligner {
       margin = DEFAULT_MARGIN,
+      mode = "distribute",
     
       vb:button {
         text = "Set Line",
