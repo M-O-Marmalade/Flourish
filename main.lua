@@ -2,7 +2,7 @@
 
 --GLOBALS--------------------------------------------------------------------------------------------
 app = renoise.app()
-song = renoise.song()
+song = nil
 sequence_size = nil
 sequence_index = 0
 pattern_amount = nil
@@ -447,6 +447,7 @@ end
 
 --SHOW WINDOW WITHOUT SETTING A NEW NOTE-------------------------------------------------------------
 local function show_window_only()
+  song = renoise.song()
   if not flourish_window_created then create_flourish_window() end
   if not flourish_window_obj or not flourish_window_obj.visible then show_flourish_window() end
 end
