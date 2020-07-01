@@ -301,7 +301,7 @@ function create_flourish_window()
 
   window_title = "~ FLOURISH ~"  
   window_content = vb:column {    
-    margin = DEFAULT_MARGIN,
+    margin = 1,
     
     vb:text {   -- now add the first text into the inner column
       id = "my_text",
@@ -315,7 +315,7 @@ function create_flourish_window()
     },
   
     vb:horizontal_aligner {
-      margin = DEFAULT_MARGIN,
+      margin = 1,
       mode = "distribute",
       
       vb:text {
@@ -328,7 +328,7 @@ function create_flourish_window()
     },
     
     vb:horizontal_aligner {
-      margin = DEFAULT_MARGIN,
+      margin = 1,
       mode = "distribute",
       
       vb:minislider {
@@ -364,7 +364,7 @@ function create_flourish_window()
     },--row close
     
     vb:row {
-      margin = DEFAULT_MARGIN,
+      margin = 1,
       vb:text {
         text = "Auto-Apply"
       },      
@@ -378,7 +378,7 @@ function create_flourish_window()
     },--auto-apply checkbox row close
     
      vb:row {
-      margin = DEFAULT_MARGIN,
+      margin = 1,
       vb:text {
         text = "Destructive"
       },      
@@ -386,24 +386,38 @@ function create_flourish_window()
         tooltip = "Content of lines will be destroyed as you move through them",
         value = destructive,
         notifier = function(value)
-          clear_columns_to_clear()--...clear our destructive columns clearing index
-          --...reset our sliders to 0
-          vb.views.time_slider.value = 0
-          time = 0
-          vb.views.tension_slider.value = 0
-          tension = 0
-          flourish()
           destructive = value
---[[
-          if value then store_song_lines() end
---]]
         end
       }
     },--auto-apply checkbox row close
     
     vb:horizontal_aligner {
-      margin = DEFAULT_MARGIN,
+      margin = 1,
       mode = "distribute",
+      
+      vb:row {
+        margin = 1,
+        
+        vb:text {
+          text = "Quantization "
+        },
+        
+        vb:popup {
+          width = 64,
+          value = 1,
+          items = {"Off", "Line", "1/2 Line", "1/4 Line", "1/8 Line"},
+          notifier = function(value)
+            print("popup value: ", value)
+          end
+          
+        }        
+      }
+    },
+    
+    vb:horizontal_aligner {
+      margin = 1,
+      mode = "distribute",
+      width = "100%",
     
       vb:button {
         text = "Set Line",
@@ -421,7 +435,7 @@ function create_flourish_window()
           flourish()
         end
       }
-    }--row close
+    }--horizontal aligner close    
   
   }--column close
   
