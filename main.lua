@@ -95,42 +95,6 @@ local function clear_columns_to_clear()
   
 end
 
---STORE SONG LINES-----------------------------------------------------------------------------------
-local function store_song_lines()
-  print("STORE_SONG_LINES()")
---...we store the line values of all lines in track in song
-      local y = 1
-      for pos,line in song.pattern_iterator:lines_in_track(track_index,true) do
-    
-        lns_in_sng[y] = {}
-    
-        local z = 1
-        while z < 13 do
-      
-          print("\nz = " .. z)
-      
-          lns_in_sng[y][z] = {
-          song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).note_value,
-          song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).instrument_value,
-          song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).volume_value,
-          song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).panning_value,
-          song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).delay_value,
-          song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).effect_number_value,
-          song.patterns[pattern_index].tracks[track_index]:line(y):note_column(z).effect_amount_value
-          }
-          z = z + 1
-
-        
-        end--end 12 columns loop
-      
-        y = y + 1
-      
-      end--end lines in song loop
-    
-      print("recorded lines in track in song")
-      lns_in_sng_amount = y - 1
-end
-
 --GET CURRENT LINE-----------------------------------------------------------------------------------
 local function get_current_line() 
   print("GET_CURRENT_LINE()")
@@ -184,7 +148,7 @@ local function get_current_line()
     song.tracks[track_index].delay_column_visible = true 
     
     --...and confirm the new line selection to the user in the status bar
-    show_status("Line " .. line_index .. " in Pattern " .. pattern_index .. " was selected for Flourish!")
+    show_status("Line " .. line_index - 1 .. " in Sequence " .. sequence_index - 1 .. " was selected for Flourish!")
     
     if flourish_window_created then --if we have already created a view window...
       --...reset our sliders to 0 upon setting a new line...
@@ -198,11 +162,7 @@ end
 --UPDATE TEXT----------------------------------------------------------------------------------------
 local function update_text()
   print("UPDATE_TEXT()")
-  vb.views.my_text.text = "Selected Sequence: " .. sequence_index - 1 ..
-        "\nSelected Pattern: " .. pattern_index - 1 ..
-        "\nSelected Track: " .. track_index ..
-        "\nSelected Line: " .. line_index - 1 ..
-        "\n" .. notes_detected .. " Note Columns selected"
+  vb.views.my_text.text = notes_detected .. " Notes Detected"
 end
 
 --FLOURISH-------------------------------------------------------------------------------------------
@@ -296,156 +256,128 @@ end
 --CREATE FLOURISH WINDOW-----------------------------------------------------------------------------
 function create_flourish_window()
   print("CREATE_FLOURISH_WINDOW()")
-  local DEFAULT_MARGIN = renoise.ViewBuilder.DEFAULT_CONTROL_MARGIN
-  local DEFAULT_CONTROL_HEIGHT = renoise.ViewBuilder.DEFAULT_CONTROL_HEIGHT  
 
   window_title = "~ FLOURISH ~"  
-  window_content = vb:column {    
-    margin = 1,
-    
-    vb:text {   -- now add the first text into the inner column
-      id = "my_text",
-      style = "normal",
-      font = "bold",
-      text = "Selected Sequence: " .. sequence_index - 1 ..
-        "\nSelected Pattern: " .. pattern_index - 1 ..
-        "\nSelected Track: " .. track_index ..
-        "\nSelected Line: " .. line_index - 1 ..
-        "\n" .. notes_detected .. " Note Columns selected"
+  window_content = vb:column {
+    margin = 14,
+    vb:horizontal_aligner {
+      mode = "center",
+          
+      vb:text {   -- now add the first text into the inner column
+        id = "my_text",
+        style = "normal",
+        font = "bold",
+        text = notes_detected .. " Notes Detected"
+      }
     },
   
     vb:horizontal_aligner {
-      margin = 1,
       mode = "distribute",
+  
+      vb:vertical_aligner {
+        mode = "top",
       
-      vb:text {
-        text = "Time"
+        vb:bitmap {
+          mode = "body_color",
+          bitmap = "Bitmaps/clock.bmp"
+        },
+      
+        vb:minislider {
+          id = "time_slider",
+          tooltip = "The time over which to spread the notes",
+          min = -2277,
+          max = 2277,
+          value = 0,
+          width = 21,
+          height = 150,
+          notifier = function(value)     
+            time = -value
+            show_status(("Time: %.2f"):format(time))
+            if auto_apply then flourish() end
+          end
+        }       
+
       },
+    
+      vb:vertical_aligner {
+        mode = "top",
+      
+        vb:bitmap {
+          mode = "body_color",
+          bitmap = "Bitmaps/curve.bmp"        
+        },
+      
+        vb:minislider {
+          id = "tension_slider",
+          tooltip = "(not yet implemented)",
+          min = -1,
+          max = 1,
+          value = 0,
+          width = 21,
+          height = 150,
+          notifier = function(value)                
+            tension = value
+            show_status(("Tension: %.2f"):format(tension))
+            if auto_apply then flourish() end
+          end
+        }
         
-      vb:text {
-        text = "Tension"        
-      }
-    },
-    
-    vb:horizontal_aligner {
-      margin = 1,
-      mode = "distribute",
-      
-      vb:minislider {
-        id = "time_slider",
-        tooltip = "The time over which to spread the notes",
-        min = -2277,
-        max = 2277,
-        value = 0,
-        width = 20,
-        height = 150,
-        notifier = function(value)     
-          time = -value
-          show_status(("Time: %.2f"):format(time))
-          if auto_apply then flourish() end
-        end
-      },
-      
-      vb:minislider {
-        id = "tension_slider",
-        tooltip = "(not yet implemented)",
-        min = -1,
-        max = 1,
-        value = 0,
-        width = 20,
-        height = 150,
-        notifier = function(value)                
-          tension = value
-          show_status(("Tension: %.2f"):format(tension))
-          if auto_apply then flourish() end
-        end
-      }
+      }--vertical aligner close
               
-    },--row close
-    
-    vb:row {
-      margin = 1,
-      vb:text {
-        text = "Auto-Apply"
-      },      
-      vb:checkbox {
-        tooltip = "Moving the sliders will update/apply the change in realtime",
-        value = auto_apply,
-        notifier = function(value)
-          auto_apply = value
-        end
-      }
-    },--auto-apply checkbox row close
-    
-    vb:row {
-      margin = 1,
-      vb:text {
-        text = "Destructive"
-      },      
-      vb:checkbox {
-        tooltip = "Content of lines will be destroyed as you move through them",
-        value = destructive,
-        notifier = function(value)
+    },--horizontal aligner close
+ 
+    vb:horizontal_aligner {
+      mode = "center",
+      
+      vb:bitmap {
+        id = "destructive_button",
+        tooltip = "Stilts Dude walks carefully over any notes he finds...\nSteamroller just destroys them!",
+        bitmap = "Bitmaps/stilts.bmp",
+        mode = "body_color",
+        notifier = function()
           time = 0
           vb.views.time_slider.value = 0
-          destructive = value
-          if value then vb.views.destructive_bmp.bitmap = "Bitmaps/steamroller.bmp"
-          else vb.views.destructive_bmp.bitmap = "Bitmaps/stilts.bmp"
-          end
+          flourish()
+          destructive = not destructive         
+          if destructive then vb.views.destructive_button.bitmap = "Bitmaps/steamroller.bmp"
+          else vb.views.destructive_button.bitmap = "Bitmaps/stilts.bmp" end
         end
-      },
-      vb:bitmap {
-        id = "destructive_bmp",
-        mode = "body_color",
-        bitmap = "Bitmaps/stilts.bmp"
-      }    
-      
-    },--destructive checkbox row close
+      }
+    
+    },--horizontal aligner close
     
     vb:horizontal_aligner {
-      margin = 1,
-      mode = "distribute",
+      mode = "center",
       
-      vb:row {
-        margin = 1,
+      vb:bitmap {
+        mode = "body_color",
+        bitmap = "Bitmaps/quant.bmp",
+      },
         
-        vb:text {
-          text = "Quantization "
-        },
-        
-        vb:popup {
-          width = 64,
-          value = 1,
-          items = {"Off", "Line", "1/2 Line", "1/4 Line", "1/8 Line"},
-          notifier = function(value)
-            print("popup value: ", value)
-          end
-          
-        }        
+      vb:popup {
+        tooltip = "(not yet implemented)",
+        width = 64,
+        value = 1,
+        items = {"Off", "Line", "1/2 Line", "1/4 Line", "1/8 Line"},
+        notifier = function(value)
+          print("popup value: ", value)
+        end                
       }
+      
     },
     
     vb:horizontal_aligner {
-      margin = 1,
-      mode = "distribute",
-      width = "100%",
-    
+      mode = "center",
       vb:button {
-        text = "Set Line",
-        width = 60,
+        text = "Set New Line",
+        width = "100%",
+        height = 20,
         notifier = function()        
           get_current_line()
           update_text()
         end
-      },    
-    
-      vb:button {
-        text = "FLOURISH!",
-        width = 60,
-        notifier = function()        
-          flourish()
-        end
-      }
+      }   
+ 
     }--horizontal aligner close    
   
   }--column close
