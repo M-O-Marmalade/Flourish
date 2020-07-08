@@ -1,39 +1,37 @@
 --Flourish - main.lua--
-
+local debug_mode = false
 --GLOBALS--------------------------------------------------------------------------------------------
-app = renoise.app()
-song = nil
-sequence_size = nil
-sequence_index = 0
-pattern_amount = nil
-pattern_index = 0
-track_index = 0
-track_type = nil
-line_amount = nil
-line_index = 0
+local app = renoise.app()
+local song = nil
+local sequence_index = 0
+local pattern_index = 0
+local track_index = 0
+local track_type = nil
+local line_index = 0
 
-cur_lin_ref = nil
-cur_lin_clmn_vals = {}
-lns_in_sng = {}
-lns_in_sng_amount = nil
-notes_detected = 0
+local time = 0
+local tension = 0
+local auto_apply = true
+local destructive = false
+local visible_columns_only = true
 
-time = 0
-tension = 0
-auto_apply = true
-destructive = false
-pats_to_clear = {}
-lins_to_clear = {}
-column_vals_to_store = {}
-column_pats_to_store = {}
-column_lins_to_store = {}
-visible_columns_only = true
+local cur_lin_ref = nil
+local cur_lin_clmn_vals = {}
+local notes_detected = 0
+
+local pats_to_clear = {}
+local lins_to_clear = {}
+local column_vals_to_store = {}
+local column_pats_to_store = {}
+local column_lins_to_store = {}
+
+local start_pos = renoise.SongPos()
 
 local vb = renoise.ViewBuilder() 
-flourish_window_obj = nil
-flourish_window_created = nil
-window_title = nil
-window_content = nil
+local flourish_window_obj = nil
+local flourish_window_created = nil
+local window_title = nil
+local window_content = nil
 
 --SHOW STATUS----------------------------------------------------------------------------------------
 local function show_status(message)
@@ -43,7 +41,7 @@ end
 
 --FIND NEW LINE--------------------------------------------------------------------------------------
 local function find_new_line(seq, lin, offset)
-  print("FIND_NEW_LINE()")
+  if debug_mode then print("FIND_NEW_LINE()") end
   
   --get the amount of lines in the current pattern
   local lines_in_this_pattern = #song.patterns[song.sequencer:pattern(seq)].tracks[track_index].lines
@@ -76,7 +74,7 @@ end
 
 --CLEAR COLUMNS_TO_CLEAR-----------------------------------------------------------------------------
 local function clear_columns_to_clear()
-  print("CLEAR_COLUMNS_TO_CLEAR()")
+  if debug_mode then print("CLEAR_COLUMNS_TO_CLEAR()") end
   
   for i = 1, 12 do
   
@@ -97,7 +95,7 @@ end
 
 --GET CURRENT LINE-----------------------------------------------------------------------------------
 local function get_current_line() 
-  print("GET_CURRENT_LINE()")
+  if debug_mode then print("GET_CURRENT_LINE()") end
   app = renoise.app()
   song = renoise.song()
 
@@ -109,14 +107,13 @@ local function get_current_line()
   else --...if the track is a valid track, we...
    
     --... store some indexing info in memory...
-    sequence_size = #song.sequencer.pattern_sequence
     sequence_index = song.selected_sequence_index
-    pattern_amount = #song.patterns
     pattern_index = song.selected_pattern_index
     track_index = song.selected_track_index
-    line_amount = #song.patterns[pattern_index].tracks[track_index].lines
     line_index = song.selected_line_index  
     cur_lin_ref = song.patterns[pattern_index].tracks[track_index]:line(line_index)
+    start_pos.sequence = sequence_index
+    start_pos.line = line_index
     
     clear_columns_to_clear()--...clear our destructive columns clearing index
     
@@ -137,7 +134,7 @@ local function get_current_line()
       x = x + 1
     end
     
-    print("cur_lin_ref: ") print(cur_lin_ref)
+    if debug_mode then print("cur_lin_ref: ") print(cur_lin_ref) end
   
     --...we detect the amount of note columns in the track that have notes...
     for i = 1, 12 do  
@@ -161,13 +158,13 @@ end
 
 --UPDATE TEXT----------------------------------------------------------------------------------------
 local function update_text()
-  print("UPDATE_TEXT()")
+  if debug_mode then print("UPDATE_TEXT()") end
   vb.views.my_text.text = notes_detected .. " Notes Detected"
 end
 
 --FLOURISH-------------------------------------------------------------------------------------------
 local function flourish()
-  print("FLOURISH()")
+  if debug_mode then print("FLOURISH()") end
   
   --clear the line that we're flourishing
   song.patterns[pattern_index].tracks[track_index]:line(line_index):clear()
@@ -177,19 +174,22 @@ local function flourish()
     --...find the correct line offset to copy to based on our current Time slider value
     local line_index_offset = math.floor(((i - 1) * time) / 256)
     
-    print("line_index: ",line_index)
-    print("line_index_offset: ",line_index_offset)
+    if debug_mode then 
+      print("line_index: ",line_index)
+      print("line_index_offset: ",line_index_offset)
+    end
     
     --...find correct sequence index, and line index in that sequence, to copy this note to...
     local new_seq_index,new_lin_index = find_new_line(sequence_index,line_index,line_index_offset)
     
-    print("new_lin_index: ", new_lin_index)
+    if debug_mode then print("new_lin_index: ", new_lin_index) end
     
     --convert sequence index to pattern index
     local new_pat_index = song.sequencer:pattern(new_seq_index)
     
     --find correct note column reference to copy to
     local column_to_copy_to = song.patterns[new_pat_index].tracks[track_index]:line(new_lin_index):note_column(i)
+    
     
     if destructive then --if we are not preserving what we end up flourishing over...
 
@@ -250,12 +250,20 @@ local function flourish()
     --new delay value to apply to the new line/note column
     column_to_copy_to.delay_value = math.floor(((i - 1) * time) % 256)    
     
-  end--for loop close
+    if time >= 0 then
+      start_pos.sequence = sequence_index
+      start_pos.line = line_index    
+    elseif i == notes_detected then
+      start_pos.sequence = new_seq_index
+      start_pos.line = new_lin_index
+    end      
+    
+  end--for loop close  
 end
 
 --CREATE FLOURISH WINDOW-----------------------------------------------------------------------------
 function create_flourish_window()
-  print("CREATE_FLOURISH_WINDOW()")
+  if debug_mode then print("CREATE_FLOURISH_WINDOW()") end
 
   window_title = "~ FLOURISH ~"  
   window_content = vb:column {
@@ -292,7 +300,7 @@ function create_flourish_window()
           height = 150,
           notifier = function(value)     
             time = -value
-            show_status(("Time: %.2f"):format(time))
+            if debug_mode then show_status(("Time: %.2f"):format(time)) end
             if auto_apply then flourish() end
           end
         }       
@@ -317,7 +325,7 @@ function create_flourish_window()
           height = 150,
           notifier = function(value)                
             tension = value
-            show_status(("Tension: %.2f"):format(tension))
+            if debug_mode then show_status(("Tension: %.2f"):format(tension)) end
             if auto_apply then flourish() end
           end
         }
@@ -360,7 +368,7 @@ function create_flourish_window()
         value = 1,
         items = {"Off", "Line", "1/2 Line", "1/4 Line", "1/8 Line"},
         notifier = function(value)
-          print("popup value: ", value)
+          if debug_mode then print("popup value: ", value)end
         end                
       }
       
@@ -386,15 +394,38 @@ function create_flourish_window()
       
 end--end function
 
+--KEY HANDLER FUNCTIONS------------------------------------------------------------------------------
+local function key_handler(dialog, key)
+  
+  if ((key.modifiers == "" or key.modifiers == "control") and key.name == "space" and key.state == "pressed") then
+    song.transport:start_at(start_pos)
+  
+  elseif ((key.modifiers == "" or key.modifiers == "control") and key.name == "space" and key.state == "released") then
+    song.transport:stop()
+  end
+
+  -- close on escape...
+  if (key.modifiers == "" and key.name == "esc") then
+    dialog:close()
+  end
+end
+
+--KEY HANDLER OPTIONS--------------------------------------------------------------------------------
+local key_handler_options = {
+  send_key_repeat = false,
+  send_key_release = true
+}
+
+
 --SHOW FLOURISH WINDOW-------------------------------------------------------------------------------
 local function show_flourish_window()
-  print("SHOW_FLOURISH_WINDOW()")
-  flourish_window_obj = app:show_custom_dialog(window_title, window_content)
+  if debug_mode then print("SHOW_FLOURISH_WINDOW()") end
+  flourish_window_obj = app:show_custom_dialog(window_title, window_content, key_handler, key_handler_options)
 end
 
 --MAIN FUNCTION--------------------------------------------------------------------------------------
 local function main_function()
-  print("MAIN_FUNCTION()")
+  if debug_mode then print("MAIN_FUNCTION()") end
   get_current_line()
   if track_type == 1 then
     if not flourish_window_created then create_flourish_window() end
@@ -418,7 +449,7 @@ renoise.tool():add_menu_entry {
 }
 
 renoise.tool():add_menu_entry {
-  name = "Main Menu:Tools:M.O.Marmalade:Flourish - Show Window...",
+  name = "Main Menu:Tools:M.O.Marmalade:Flourish - Reveal Window...",
   invoke = function() show_window_only() end
 }
 
@@ -433,6 +464,6 @@ renoise.tool():add_keybinding {
 }
 
 renoise.tool():add_keybinding {
-  name = "Global:Tools:Flourish - Show Window...",
+  name = "Global:Tools:Flourish - Reveal Window...",
   invoke = function() show_flourish_window() end 
 }
