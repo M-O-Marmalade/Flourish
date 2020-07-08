@@ -5,7 +5,7 @@ A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios
 
 # HOW TO INSTALL
 1. **Download** the tool from this repository
-![Download](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/dragndrop.jpg)
+![Download](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourish1.jpg)
 
 2. **Extract** the *"com.MOMarmalade.Flourish.xrnx-master"* folder from the .zip file
 ![Extract](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/extract.jpg)
