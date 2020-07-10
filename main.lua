@@ -1,5 +1,5 @@
 --Flourish - main.lua--
-local debug_mode = false
+local debug_mode = true
 --GLOBALS--------------------------------------------------------------------------------------------
 local app = renoise.app()
 local song = nil
@@ -265,9 +265,8 @@ end
 function create_flourish_window()
   if debug_mode then print("CREATE_FLOURISH_WINDOW()") end
 
-  window_title = "~ FLOURISH ~"  
+  window_title = "Flourish"  
   window_content = vb:column {
-    margin = 14,
     vb:horizontal_aligner {
       mode = "center",
           
@@ -276,7 +275,7 @@ function create_flourish_window()
         style = "normal",
         font = "bold",
         text = notes_detected .. " Notes Detected"
-      }
+      }      
     },
   
     vb:horizontal_aligner {
@@ -296,8 +295,8 @@ function create_flourish_window()
           min = -2277,
           max = 2277,
           value = 0,
-          width = 21,
-          height = 150,
+          width = 22,
+          height = 127,
           notifier = function(value)     
             time = -value
             if debug_mode then show_status(("Time: %.2f"):format(time)) end
@@ -321,8 +320,8 @@ function create_flourish_window()
           min = -1,
           max = 1,
           value = 0,
-          width = 21,
-          height = 150,
+          width = 22,
+          height = 127,
           notifier = function(value)                
             tension = value
             if debug_mode then show_status(("Tension: %.2f"):format(tension)) end
@@ -359,7 +358,7 @@ function create_flourish_window()
       
       vb:bitmap {
         mode = "body_color",
-        bitmap = "Bitmaps/quant.bmp",
+        bitmap = "Bitmaps/magnet.bmp",
       },
         
       vb:popup {
@@ -372,24 +371,55 @@ function create_flourish_window()
         end                
       }
       
-    },
+    },--horizontal aligner close
     
     vb:horizontal_aligner {
       mode = "center",
       vb:button {
-        text = "Set New Line",
-        width = "100%",
-        height = 20,
+        text = "Set Line",
+        tooltip = "Set new line to be edited by Flourish",
+        width = "82%",
+        --height = 20,
         notifier = function()        
           get_current_line()
           update_text()
         end
-      }   
+      },
+      
+      vb:button {
+        id = "help_button",
+        tooltip = "View instructions",
+        width = 18,
+        height = 18,
+        bitmap = "Bitmaps/question.bmp",
+        notifier = function()
+          vb.views.about_column.visible = not vb.views.about_column.visible
+          if vb.views.about_column.visible then 
+            app:open_url("https://github.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx")
+            vb.views.help_button.tooltip = "Hide M.O.Marmalade"
+          else
+            vb.views.help_button.tooltip = "View instructions"
+          end
+        end
+      }
  
-    }--horizontal aligner close    
+    },--horizontal aligner close 
+    
+    vb:column {
+      id = "about_column",
+      visible = false,
+      width = "100%",
+    
+      vb:row {
+        vb:bitmap {
+          bitmap = "Bitmaps/momarmalade.bmp",
+          mode = "transparent",
+        }
+      }    
+    }   
   
-  }--column close
-  
+  }--window content column close
+    
   flourish_window_created = true
       
 end--end function
