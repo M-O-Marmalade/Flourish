@@ -1,5 +1,6 @@
 --Flourish - main.lua--
 local debug_mode = true
+local auto_apply = true
 --GLOBALS--------------------------------------------------------------------------------------------
 local app = renoise.app()
 local song = nil
@@ -10,10 +11,11 @@ local track_type = nil
 local line_index = 0
 
 local time = 0
-local tension = 0
-local auto_apply = true
+local time_multiplier = 1
+local tension = 1
+local time_offset = 0
+local time_offset_multiplier = 1
 local destructive = false
-local visible_columns_only = true
 
 local cur_lin_ref = nil
 local cur_lin_clmn_vals = {}
@@ -145,13 +147,21 @@ local function get_current_line()
     song.tracks[track_index].delay_column_visible = true 
     
     --...and confirm the new line selection to the user in the status bar
-    show_status("Line " .. line_index - 1 .. " in Sequence " .. sequence_index - 1 .. " was selected for Flourish!")
+    show_status(notes_detected .. " Note Columns selected on Line " .. line_index - 1 .. " in Sequence " .. sequence_index - 1 .. " for Flourish!")
     
     if flourish_window_created then --if we have already created a view window...
       --...reset our sliders to 0 upon setting a new line...
       vb.views.time_slider.value = 0
+      vb.views.time_multiplier.value = 1
       vb.views.tension_slider.value = 0
+      vb.views.offset_multiplier.value = 1
     end
+    
+    time = 0
+    time_multiplier = 1
+    tension = 1
+    time_offset = 0
+    time_offset_multiplier = 1
     
   end--close if statement
 end
@@ -159,7 +169,7 @@ end
 --UPDATE TEXT----------------------------------------------------------------------------------------
 local function update_text()
   if debug_mode then print("UPDATE_TEXT()") end
-  vb.views.my_text.text = notes_detected .. " Notes Detected"
+  vb.views.my_text.text = "[" .. notes_detected .. " Columns]"
 end
 
 --FLOURISH-------------------------------------------------------------------------------------------
@@ -169,10 +179,20 @@ local function flourish()
   --clear the line that we're flourishing
   song.patterns[pattern_index].tracks[track_index]:line(line_index):clear()
   
+  --calculate our time factor to apply to our notes
+  local tim_factor = time * time_multiplier
+  local tim_offset = time_offset * time_offset_multiplier
+  local div_factor = 1/notes_detected
+  local tens_factor = tension
+--[[  
+  if time < 0 then tens_factor = 10 - tension
+  else tens_factor = tension
+  end
+--]]
   for i = 1, notes_detected do  --for each of the notes detected on the current line...
 
-    --...find the correct line offset to copy to based on our current Time slider value
-    local line_index_offset = math.floor(((i - 1) * time) / 256)
+    --...find the correct line offset to copy to based on our current time factor
+    local line_index_offset = math.floor((((i - 1) * div_factor)^tens_factor * tim_factor + tim_offset) / 255)
     
     if debug_mode then 
       print("line_index: ",line_index)
@@ -248,14 +268,18 @@ local function flourish()
     column_to_copy_to.effect_amount_value = cur_lin_clmn_vals[i][7]
   
     --new delay value to apply to the new line/note column
-    column_to_copy_to.delay_value = math.floor(((i - 1) * time) % 256)    
+    column_to_copy_to.delay_value = math.floor((((i - 1) * div_factor)^tens_factor * tim_factor + tim_offset) % 255)    
     
     if time >= 0 then
-      start_pos.sequence = sequence_index
-      start_pos.line = line_index    
-    elseif i == notes_detected then
-      start_pos.sequence = new_seq_index
-      start_pos.line = new_lin_index
+      if i == 1 then
+        start_pos.sequence = new_seq_index
+        start_pos.line = new_lin_index 
+      end      
+    elseif time < 0 then
+      if i == notes_detected then
+        start_pos.sequence = new_seq_index
+        start_pos.line = new_lin_index
+      end
     end      
     
   end--for loop close  
@@ -267,6 +291,12 @@ function create_flourish_window()
 
   window_title = "Flourish"  
   window_content = vb:column {
+    width = 105,
+    
+    vb:row {
+      height = 4
+    },
+
     vb:horizontal_aligner {
       mode = "center",
           
@@ -274,10 +304,9 @@ function create_flourish_window()
         id = "my_text",
         style = "normal",
         font = "bold",
-        text = notes_detected .. " Notes Detected"
+        text = "[" .. notes_detected .. " Columns]"
       }      
     },
-  
     vb:horizontal_aligner {
       mode = "distribute",
   
@@ -292,8 +321,8 @@ function create_flourish_window()
         vb:minislider {
           id = "time_slider",
           tooltip = "The time over which to spread the notes",
-          min = -2277,
-          max = 2277,
+          min = -2100,
+          max = 2100,
           value = 0,
           width = 22,
           height = 127,
@@ -302,8 +331,8 @@ function create_flourish_window()
             if debug_mode then show_status(("Time: %.2f"):format(time)) end
             if auto_apply then flourish() end
           end
-        }       
-
+        }            
+  
       },
     
       vb:vertical_aligner {
@@ -317,14 +346,39 @@ function create_flourish_window()
         vb:minislider {
           id = "tension_slider",
           tooltip = "(not yet implemented)",
-          min = -1,
-          max = 1,
+          min = -0.9,
+          max = 9,
+          value = 0,
+          width = 22,
+          height = 127,
+          notifier = function(value)                           
+            tension = 1 + value
+            if debug_mode then show_status(("Tension: %.2f"):format(tension)) end
+            if auto_apply then flourish() end
+          end
+        }
+        
+      },--vertical aligner close
+      
+      vb:vertical_aligner {
+        mode = "top",
+      
+        vb:bitmap {
+          mode = "body_color",
+          bitmap = "Bitmaps/arrows.bmp"        
+        },
+      
+        vb:minislider {
+          id = "offset_slider",
+          tooltip = "Offset the position of the flourish",
+          min = -6400,
+          max = 6400,
           value = 0,
           width = 22,
           height = 127,
           notifier = function(value)                
-            tension = value
-            if debug_mode then show_status(("Tension: %.2f"):format(tension)) end
+            time_offset = -value
+            if debug_mode then show_status(("Offset: %.2f"):format(time_offset)) end
             if auto_apply then flourish() end
           end
         }
@@ -335,6 +389,21 @@ function create_flourish_window()
  
     vb:horizontal_aligner {
       mode = "center",
+      
+              vb:rotary {
+          id = "time_multiplier",
+          tooltip = "Time multiplier",
+          min = 1,
+          max = 64,
+          value = 1,
+          width = 23,
+          height = 23,
+          notifier = function(value)
+            time_multiplier = value
+            if auto_apply then flourish() end
+          end
+          
+        }, 
       
       vb:bitmap {
         id = "destructive_button",
@@ -349,30 +418,24 @@ function create_flourish_window()
           if destructive then vb.views.destructive_button.bitmap = "Bitmaps/steamroller.bmp"
           else vb.views.destructive_button.bitmap = "Bitmaps/stilts.bmp" end
         end
-      }
-    
-    },--horizontal aligner close
-    
-    vb:horizontal_aligner {
-      mode = "center",
-      
-      vb:bitmap {
-        mode = "body_color",
-        bitmap = "Bitmaps/magnet.bmp",
       },
-        
-      vb:popup {
-        tooltip = "(not yet implemented)",
-        width = 64,
-        value = 1,
-        items = {"Off", "Line", "1/2 Line", "1/4 Line", "1/8 Line"},
-        notifier = function(value)
-          if debug_mode then print("popup value: ", value)end
-        end                
-      }
       
-    },--horizontal aligner close
+      vb:rotary {
+          id = "offset_multiplier",
+          tooltip = "Offset multiplier",
+          min = 1,
+          max = 64,
+          value = 1,
+          width = 23,
+          height = 23,
+          notifier = function(value)
+            time_offset_multiplier = value
+            if auto_apply then flourish() end
+          end          
+        }
     
+    },--horizontal aligner close
+
     vb:horizontal_aligner {
       mode = "center",
       vb:button {
@@ -393,30 +456,11 @@ function create_flourish_window()
         height = 18,
         bitmap = "Bitmaps/question.bmp",
         notifier = function()
-          vb.views.about_column.visible = not vb.views.about_column.visible
-          if vb.views.about_column.visible then 
             app:open_url("https://github.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx")
-            vb.views.help_button.tooltip = "Hide M.O.Marmalade"
-          else
-            vb.views.help_button.tooltip = "View instructions"
-          end
         end
       }
  
-    },--horizontal aligner close 
-    
-    vb:column {
-      id = "about_column",
-      visible = false,
-      width = "100%",
-    
-      vb:row {
-        vb:bitmap {
-          bitmap = "Bitmaps/momarmalade.bmp",
-          mode = "transparent",
-        }
-      }    
-    }   
+    }--horizontal aligner close      
   
   }--window content column close
     
@@ -427,11 +471,14 @@ end--end function
 --KEY HANDLER FUNCTIONS------------------------------------------------------------------------------
 local function key_handler(dialog, key)
   
-  if ((key.modifiers == "" or key.modifiers == "control") and key.name == "space" and key.state == "pressed") then
-    song.transport:start_at(start_pos)
-  
-  elseif ((key.modifiers == "" or key.modifiers == "control") and key.name == "space" and key.state == "released") then
-    song.transport:stop()
+  if key.name == "space" then
+    if key.modifiers == "" or key.modifiers == "control" then
+      if key.state == "pressed" then
+        song.transport:start_at(start_pos)
+      elseif key.state == "released" then
+        song.transport:stop()
+      end
+    end
   end
 
   -- close on escape...
