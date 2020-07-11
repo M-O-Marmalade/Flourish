@@ -1,6 +1,8 @@
 --Flourish - main.lua--
 local debug_mode = true
 local auto_apply = true
+
+local clock1
 --GLOBALS--------------------------------------------------------------------------------------------
 local app = renoise.app()
 local song = nil
@@ -135,9 +137,9 @@ local function get_current_line()
       }
       x = x + 1
     end
-    
+--[[    
     if debug_mode then print("cur_lin_ref: ") print(cur_lin_ref) end
-  
+--]]  
     --...we detect the amount of note columns in the track that have notes...
     for i = 1, 12 do  
       if not cur_lin_ref:note_column(i).is_empty then notes_detected = i end
@@ -175,7 +177,9 @@ end
 --FLOURISH-------------------------------------------------------------------------------------------
 local function flourish()
   if debug_mode then print("FLOURISH()") end
-  
+  if debug_mode then
+    clock1 = os.clock() 
+  end
   --clear the line that we're flourishing
   song.patterns[pattern_index].tracks[track_index]:line(line_index):clear()
   
@@ -189,21 +193,24 @@ local function flourish()
   else tens_factor = tension
   end
 --]]
+
+  if debug_mode then print("line clearing/time factor calculation time: ", os.clock() - clock1) end
+  
   for i = 1, notes_detected do  --for each of the notes detected on the current line...
 
     --...find the correct line offset to copy to based on our current time factor
     local line_index_offset = math.floor((((i - 1) * div_factor)^tens_factor * tim_factor + tim_offset) / 255)
-    
+--[[    
     if debug_mode then 
       print("line_index: ",line_index)
       print("line_index_offset: ",line_index_offset)
     end
-    
+--]]    
     --...find correct sequence index, and line index in that sequence, to copy this note to...
     local new_seq_index,new_lin_index = find_new_line(sequence_index,line_index,line_index_offset)
-    
+--[[    
     if debug_mode then print("new_lin_index: ", new_lin_index) end
-    
+--]]    
     --convert sequence index to pattern index
     local new_pat_index = song.sequencer:pattern(new_seq_index)
     

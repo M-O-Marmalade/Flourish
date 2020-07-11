@@ -45,6 +45,4 @@ A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios
 ...and it's ready to use! (The installation files can now be deleted)
 
 ## TO_DO
-- Implement tension in strums (logarithmic distribution of notes)
-- Add ability to strum to/from the first/last note in the line interchangeably
-- Add quantization/snap functionality
+- Improve tension in strums (logarithmic distribution of notes)
