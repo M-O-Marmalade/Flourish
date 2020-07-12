@@ -2,6 +2,8 @@
 local debug_mode = true
 local auto_apply = true
 
+local flourishtotalclock
+
 local clock1
 local clock2
 local clock3
@@ -161,6 +163,7 @@ local function get_current_line()
       vb.views.time_slider.value = 0
       vb.views.time_multiplier.value = 1
       vb.views.tension_slider.value = 0
+      vb.views.offset_slider.value = 0
       vb.views.offset_multiplier.value = 1
     end
     
@@ -183,6 +186,7 @@ end
 local function flourish()
   if debug_mode then print("FLOURISH()") end
   if debug_mode then
+    flourishtotalclock = os.clock()
     clock1 = 0
     clock2 = 0
     clock3 = 0
@@ -318,6 +322,8 @@ local function flourish()
   end--for loop close  
   
   if debug_mode then
+    flourishtotalclock = os.clock() - flourishtotalclock
+    print("FlourishTotalClock: ", flourishtotalclock)
     print("Clock1: ", clock1)
     print("Clock2: ", clock2)
     print("Clock3: ", clock3)
@@ -501,8 +507,8 @@ function create_flourish_window()
         end
       }
  
-    }--horizontal aligner close      
-  
+    }--horizontal aligner close 
+      
   }--window content column close
     
   flourish_window_created = true
