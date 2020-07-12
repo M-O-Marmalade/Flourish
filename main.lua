@@ -3,6 +3,11 @@ local debug_mode = true
 local auto_apply = true
 
 local clock1
+local clock2
+local clock3
+local clock4
+
+local clocktemp
 --GLOBALS--------------------------------------------------------------------------------------------
 local app = renoise.app()
 local song = nil
@@ -178,7 +183,11 @@ end
 local function flourish()
   if debug_mode then print("FLOURISH()") end
   if debug_mode then
-    clock1 = os.clock() 
+    clock1 = 0
+    clock2 = 0
+    clock3 = 0
+    clock4 = 0
+    clocktemp = os.clock() 
   end
   --clear the line that we're flourishing
   song.patterns[pattern_index].tracks[track_index]:line(line_index):clear()
@@ -194,12 +203,24 @@ local function flourish()
   end
 --]]
 
-  if debug_mode then print("line clearing/time factor calculation time: ", os.clock() - clock1) end
+  if debug_mode then 
+    clock1 = os.clock() - clocktemp
+  end
   
   for i = 1, notes_detected do  --for each of the notes detected on the current line...
-
+    
+    if debug_mode then
+      clocktemp = os.clock()
+    end
+    
     --...find the correct line offset to copy to based on our current time factor
     local line_index_offset = math.floor((((i - 1) * div_factor)^tens_factor * tim_factor + tim_offset) / 255)
+
+    if debug_mode then
+      clock2 = clock2 + os.clock() - clocktemp
+      clocktemp = os.clock()
+    end
+
 --[[    
     if debug_mode then 
       print("line_index: ",line_index)
@@ -208,6 +229,11 @@ local function flourish()
 --]]    
     --...find correct sequence index, and line index in that sequence, to copy this note to...
     local new_seq_index,new_lin_index = find_new_line(sequence_index,line_index,line_index_offset)
+    
+    if debug_mode then
+      clock3 = clock3 + os.clock() - clocktemp
+    end
+    
 --[[    
     if debug_mode then print("new_lin_index: ", new_lin_index) end
 --]]    
@@ -290,6 +316,14 @@ local function flourish()
     end      
     
   end--for loop close  
+  
+  if debug_mode then
+    print("Clock1: ", clock1)
+    print("Clock2: ", clock2)
+    print("Clock3: ", clock3)
+    print("Clock4: ", clock4)
+  end
+  
 end
 
 --CREATE FLOURISH WINDOW-----------------------------------------------------------------------------
