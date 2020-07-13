@@ -1,15 +1,7 @@
---Flourish - main.lua-- 
+--Flourish - main.lua--
+--DEBUG CONTROLS-------------------------------
 local debug_mode = true 
 local auto_apply = true 
-
-local flourishtotalclock 
-
-local clock1 
-local clock2 
-local clock3 
-local clock4 
-
-local clocktemp 
 --GLOBALS-------------------------------------------------------------------------------------------- 
 local app = renoise.app() 
 local song = nil 
@@ -43,6 +35,28 @@ local flourish_window_obj = nil
 local flourish_window_created = nil 
 local window_title = nil 
 local window_content = nil 
+
+--DEBUG SETUP---------------------------------
+if debug_mode then
+  _AUTO_RELOAD_DEBUG = true
+  
+  local flourishtotalclock 
+
+  local clock1 
+  local clock2 
+  local clock3 
+  local clock4 
+  local clock3a
+  local clock3b
+  local clock3c
+  local clock3d
+
+  local clocktemp
+  local clocktempa
+  local clocktempb
+  local clocktempc
+  local clocktempd 
+end
 
 --SHOW STATUS---------------------------------------------------------------------------------------- 
 local function show_status(message) 
@@ -162,7 +176,11 @@ local function flourish()
     clock1 = 0 
     clock2 = 0 
     clock3 = 0 
-    clock4 = 0 
+    clock4 = 0
+  clock3a = 0 
+  clock3b = 0 
+  clock3c = 0 
+  clock3d = 0 
     clocktemp = os.clock() 
   end 
   --clear the line that we're flourishing 
@@ -190,68 +208,84 @@ local function flourish()
 
     if debug_mode then 
       clock2 = clock2 + os.clock() - clocktemp 
-      clocktemp = os.clock() 
-    end 
-
---[[ 
-    if debug_mode then 
-      print("line_index: ",line_index) 
+      clocktemp = os.clock()
+    print("line_index: ",line_index) 
       print("line_index_offset: ",line_index_offset) 
     end 
---]] 
+
     --...find correct sequence index, and line index in that sequence, to copy this note to... 
    -- local new_seq_index,new_lin_index = find_new_line(sequence_index,line_index,line_index_offset) 
 
-
-   local new_seq_index = sequence_index
-   local new_lin_index = line_index
-   local new_offset = line_index_offset
-   local foundnew = false 
-   while not foundnew do 
-
-      --get the amount of lines in the current pattern 
-      local lines_in_this_pattern = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
-      local sequence_total = #song.sequencer.pattern_sequence
-
-      --if our line index plus our offset is greater than the amount of lines in this pattern... 
-      if new_lin_index + new_offset > lines_in_this_pattern then 
-
-         new_seq_index = new_seq_index + 1 
-         
-         if new_seq_index > sequence_total then
-           new_seq_index = 1
-         end--wrap from end to beginning
-         
-         new_offset = new_offset - (lines_in_this_pattern - new_lin_index)
-         new_lin_index = 0
-                 
-      --if our line index plus our offset results in 0 or less... 
-      elseif new_lin_index + new_offset < 1 then 
-         new_seq_index = new_seq_index - 1 
-         if new_seq_index == 0 then new_seq_index = sequence_total 
-         end--wrap beginning to end 
-      new_offset = new_offset + new_lin_index
-      new_lin_index = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
-        
-         
-      else 
-        new_lin_index = new_lin_index + new_offset
-         
-         foundnew = true
-      end
+  if debug_mode then
+    clocktempa = os.clock()
+  end
   
+  local new_seq_index = sequence_index
+  local new_lin_index = line_index
+  local new_offset = line_index_offset
+  local sequence_total = #song.sequencer.pattern_sequence
+  
+  if debug_mode then
+    clock3a = clock3a + os.clock() - clocktempa
+  end
+   
+  local foundnew = false 
+  while not foundnew do 
+  
+    if debug_mode then
+      clocktempb = os.clock()
     end
+  
+    --get the amount of lines in the current pattern 
+    local lines_in_this_pattern = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
+    
+    if debug_mode then
+      clock3b = clock3b + os.clock() - clocktempb
+    clocktempc = os.clock()
+    end
+
+    --if our line index plus our offset is greater than the amount of lines in this pattern... 
+    if new_lin_index + new_offset > lines_in_this_pattern then 
+    new_seq_index = new_seq_index + 1 
+         
+    if new_seq_index > sequence_total then
+      new_seq_index = 1
+    end--wrap from end to beginning
+         
+    new_offset = new_offset - (lines_in_this_pattern - new_lin_index)
+    new_lin_index = 0
+                 
+    --if our line index plus our offset results in 0 or less... 
+    elseif new_lin_index + new_offset < 1 then 
+    new_seq_index = new_seq_index - 1 
+    if new_seq_index == 0 then
+      new_seq_index = sequence_total 
+    end--wrap beginning to end 
+      
+    new_offset = new_offset + new_lin_index
+    new_lin_index = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
+        
+    else 
+    new_lin_index = new_lin_index + new_offset
+    foundnew = true
+    end
+    
+    if debug_mode then
+      clock3c = clock3c + os.clock() - clocktempc
+    end
+  
+  end
 
 
     if debug_mode then 
       clock3 = clock3 + os.clock() - clocktemp 
-     clocktemp = os.clock() 
+      clocktemp = os.clock()
+    print("new_lin_index: ", new_lin_index)
     end 
---[[ 
-    if debug_mode then print("new_lin_index: ", new_lin_index) end 
---]] 
+  
     --convert sequence index to pattern index 
-    local new_pat_index = song.sequencer:pattern(new_seq_index) 
+    local new_pat_index = song.sequencer:pattern(new_seq_index)
+  
     --find correct note column reference to copy to 
     local column_to_copy_to = song.patterns[new_pat_index].tracks[track_index]:line(new_lin_index):note_column(i) 
     if destructive then --if we are not preserving what we end up flourishing over... 
@@ -309,13 +343,18 @@ local function flourish()
     end 
   end--for loop close 
   if debug_mode then 
-   clock4 = os.clock() - clocktemp 
+    clock4 = os.clock() - clocktemp 
     flourishtotalclock = os.clock() - flourishtotalclock 
     print("FlourishTotalClock: ", flourishtotalclock) 
     print("Clock1: ", clock1) 
     print("Clock2: ", clock2) 
     print("Clock3: ", clock3) 
-    print("Clock4: ", clock4) 
+  print("clock3a: ", clock3a) 
+  print("clock3b: ", clock3b) 
+  print("clock3c: ", clock3c) 
+  print("clock3d: ", clock3d) 
+    print("Clock4: ", clock4)
+
   end 
 end 
 
