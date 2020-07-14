@@ -9,7 +9,7 @@ A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios
 ![Flourish Window](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishwindow.png)
 + Move the Time slider (indicated by the ![clock](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/clock.bmp) icon) to spread the notes over time
 + Move the Tension slider (indicated by the ![curve](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/curve.bmp) icon) to change the distribution of the notes
-+ Move the Offset slider (indicated by the ![Arrows](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/curve.bmp) icon) to shift all notes over time
++ Move the Offset slider (indicated by the ![Arrows](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/arrows.bmp) icon) to shift all notes over time
 + Click the Non-Destructive button (indicated by the ![stilts](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/stilts.bmp)/![steamroller](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/steamroller.bmp) icon) to toggle Non-Destructive Mode on/off
 + Use the "Set Line" button (or the keyboard shortcut/menu entries) to set a new line to be edited by Flourish
 + While the Flourish window is in focus, you can hold the [SPACEBAR] to preview the currently edited selection
