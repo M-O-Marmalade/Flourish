@@ -1,16 +1,15 @@
 # FLOURISH
 A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios, etc
 
-![Flourish](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishwindow.jpg)
+![Flourish](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishsample.png)
 
 # HOW TO USE
 
 ## Controls
-![Flourish Window](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourish.jpg)
+![Flourish Window](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishwindow.png)
 + Move the Time slider (indicated by the ![clock](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/clock.bmp) icon) to spread the notes over time
-+ Move the Tension slider (indicated by the ![curve](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/curve.bmp) icon) to change the distribution of the notes [NOT YET IMPLEMENTED]
++ Move the Tension slider (indicated by the ![curve](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/curve.bmp) icon) to change the distribution of the notes
 + Click the Non-Destructive button (indicated by the ![stilts](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/stilts.bmp)/![steamroller](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/steamroller.bmp) icon) to toggle Non-Destructive Mode on/off
-+ Use the Quantization drop-down (indicated by the ![magnet](https://github.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/raw/master/Bitmaps/magnet.bmp) icon) to set the snap/quantization amount [NOT YET IMPLEMENTED]
 + Use the "Set Line" button (or the keyboard shortcut/menu entries) to set a new line to be edited by Flourish
 + While the Flourish window is in focus, you can hold the [SPACEBAR] to preview the currently edited selection
 
@@ -43,6 +42,3 @@ A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios
 
 
 ...and it's ready to use! (The installation files can now be deleted)
-
-## TO_DO
-- Improve tension in strums (logarithmic distribution of notes)

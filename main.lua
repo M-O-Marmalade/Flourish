@@ -1,7 +1,24 @@
 --Flourish - main.lua--
 --DEBUG CONTROLS-------------------------------
-local debug_mode = true 
+local debug_mode = false 
 local auto_apply = true 
+
+local flourishtotalclock 
+
+local clock1 
+local clock2 
+local clock3 
+local clock4 
+local clock3a
+local clock3b
+local clock3c
+local clock3d
+
+local clocktemp
+local clocktempa
+local clocktempb
+local clocktempc
+local clocktempd 
 --GLOBALS-------------------------------------------------------------------------------------------- 
 local app = renoise.app() 
 local song = nil 
@@ -39,23 +56,6 @@ local window_content = nil
 --DEBUG SETUP---------------------------------
 if debug_mode then
   _AUTO_RELOAD_DEBUG = true
-  
-  local flourishtotalclock 
-
-  local clock1 
-  local clock2 
-  local clock3 
-  local clock4 
-  local clock3a
-  local clock3b
-  local clock3c
-  local clock3d
-
-  local clocktemp
-  local clocktempa
-  local clocktempb
-  local clocktempc
-  local clocktempd 
 end
 
 --SHOW STATUS---------------------------------------------------------------------------------------- 
@@ -156,7 +156,7 @@ local function get_current_line()
     end 
     time = 0 
     time_multiplier = 1 
-    tension = 1 
+    tension = 0
     time_offset = 0 
     time_offset_multiplier = 1 
   end--close if statement 
@@ -188,15 +188,28 @@ local function flourish()
   --calculate our time factor to apply to our notes 
   local tim_factor = time * time_multiplier 
   local tim_offset = time_offset * time_offset_multiplier 
-  local div_factor = 1/notes_detected 
-  local tens_factor = tension 
---[[ 
-  if time < 0 then tens_factor = 10 - tension 
-  else tens_factor = tension 
-  end 
---]] 
+  local tens_factor
+  local tens_factor_temp
+  local div_factor = 1/notes_detected  
+  
+  if time < 0 then
+    tens_factor_temp = -tension
+  elseif time >= 0 then
+    tens_factor_temp = tension
+  end
+  
+  if tens_factor_temp > 0 then
+    tens_factor = (tens_factor_temp + 0.1) * 10
+  elseif tens_factor_temp < 0 then
+    tens_factor = tens_factor_temp + 1
+  else tens_factor = 1
+  end
 
   if debug_mode then 
+	print("tension: ", tension)
+	print("time: ", time)
+	print("tens_factor: ", tens_factor)
+	print("tens_factor_temp: ", tens_factor_temp)
     clock1 = os.clock() - clocktemp 
   end 
   for i = 1, notes_detected do  --for each of the notes detected on the current line... 
@@ -409,14 +422,14 @@ function create_flourish_window()
         }, 
         vb:minislider { 
           id = "tension_slider", 
-          tooltip = "(not yet implemented)", 
-          min = -0.9, 
-          max = 9, 
+          tooltip = "Distribution of the notes", 
+          min = -0.999, 
+          max = 0.999, 
           value = 0, 
           width = 22, 
           height = 127, 
           notifier = function(value) 
-            tension = 1 + value 
+            tension = value 
             if debug_mode then show_status(("Tension: %.2f"):format(tension)) end 
             if auto_apply then flourish() end 
           end 
@@ -430,7 +443,7 @@ function create_flourish_window()
         }, 
         vb:minislider { 
           id = "offset_slider", 
-          tooltip = "Offset the position of the flourish", 
+          tooltip = "Position offset", 
           min = -6400, 
           max = 6400, 
           value = 0, 
