@@ -12,6 +12,7 @@ A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios
 + Move the Offset slider (indicated by the ![Arrows](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/arrows.bmp) icon) to shift all notes over time
 + Click the Non-Destructive button (indicated by the ![stilts](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/stilts.bmp)/![steamroller](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/steamroller.bmp) icon) to toggle Non-Destructive Mode on/off
 + Use the "Set Line" button (or the keyboard shortcut/menu entries) to set a new line to be edited by Flourish
++ Click the Help button (indicated by the ![Question Mark](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/question.bmp) icon) to view this page at any time
 + While the Flourish window is in focus, you can hold the [SPACEBAR] to preview the currently edited selection
 
 ## Selecting a Line/Revealing the Flourish Window
