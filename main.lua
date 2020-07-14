@@ -222,8 +222,8 @@ local function flourish()
     if debug_mode then 
       clock2 = clock2 + os.clock() - clocktemp 
       clocktemp = os.clock()
-    print("line_index: ",line_index) 
-      print("line_index_offset: ",line_index_offset) 
+      --print("line_index: ",line_index) 
+      --print("line_index_offset: ",line_index_offset) 
     end 
 
     --...find correct sequence index, and line index in that sequence, to copy this note to... 
@@ -248,52 +248,65 @@ local function flourish()
     if debug_mode then
       clocktempb = os.clock()
     end
-  
-    --get the amount of lines in the current pattern 
-    local lines_in_this_pattern = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
+	
+	if time > 0 then
+	  while not foundnew do
+	  
+	    --get the amount of lines in the current pattern 
+        local lines_in_this_pattern = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
+	  
+	     --if our line index plus our offset is greater than the amount of lines in this pattern... 
+        if new_lin_index + new_offset > lines_in_this_pattern then 
+          new_seq_index = new_seq_index + 1 
+         
+          if new_seq_index > sequence_total then --if we reach the end of the sequence, wrap back to beginning
+            new_seq_index = 1
+          end
+         
+          new_offset = new_offset - (lines_in_this_pattern - new_lin_index)	--prepare our variables to enter the loop again into the next sequence in the song
+          new_lin_index = 0
+	    
+		else -- otherwise, if we are in the correct sequence/pattern, then...
+		  new_lin_index = new_lin_index + new_offset	--set our line index and break the loop(s)
+		  foundnew = true
+		end
+	  end
+	
+	elseif time < 0 then
+	  while not foundnew do
+		--if our line index plus our offset results in 0 or less... 
+		if new_lin_index + new_offset < 1 then 
+		  new_seq_index = new_seq_index - 1 --go to the previous sequence
+		  
+		  if new_seq_index == 0 then	--if we reach past the first sequence in the song, wrap to the last sequence
+            new_seq_index = sequence_total 
+          end
+      
+		  new_offset = new_offset + new_lin_index	--set our variables for the next time through the loop for the previous sequence in the song
+		  new_lin_index = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
+		
+		else -- otherwise, if we are in the correct sequence/pattern, then...
+		  new_lin_index = new_lin_index + new_offset	--set our line index and break the loop(s)
+		  foundnew = true
+		end
+	  end
+		
+	else --if time == 0
+	  new_lin_index = new_lin_index + new_offset
+	  foundnew = true
+	end
+
     
     if debug_mode then
       clock3b = clock3b + os.clock() - clocktempb
-    clocktempc = os.clock()
     end
-
-    --if our line index plus our offset is greater than the amount of lines in this pattern... 
-    if new_lin_index + new_offset > lines_in_this_pattern then 
-    new_seq_index = new_seq_index + 1 
-         
-    if new_seq_index > sequence_total then
-      new_seq_index = 1
-    end--wrap from end to beginning
-         
-    new_offset = new_offset - (lines_in_this_pattern - new_lin_index)
-    new_lin_index = 0
-                 
-    --if our line index plus our offset results in 0 or less... 
-    elseif new_lin_index + new_offset < 1 then 
-    new_seq_index = new_seq_index - 1 
-    if new_seq_index == 0 then
-      new_seq_index = sequence_total 
-    end--wrap beginning to end 
-      
-    new_offset = new_offset + new_lin_index
-    new_lin_index = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
-        
-    else 
-    new_lin_index = new_lin_index + new_offset
-    foundnew = true
-    end
-    
-    if debug_mode then
-      clock3c = clock3c + os.clock() - clocktempc
-    end
-  
   end
 
 
     if debug_mode then 
       clock3 = clock3 + os.clock() - clocktemp 
       clocktemp = os.clock()
-    print("new_lin_index: ", new_lin_index)
+      --print("new_lin_index: ", new_lin_index)
     end 
   
     --convert sequence index to pattern index 
@@ -463,7 +476,7 @@ function create_flourish_window()
           id = "time_multiplier", 
           tooltip = "Time multiplier", 
           min = 1, 
-          max = 64, 
+          max = 32, 
           value = 1, 
           width = 23, 
           height = 23, 
@@ -490,7 +503,7 @@ function create_flourish_window()
           id = "offset_multiplier", 
           tooltip = "Offset multiplier", 
           min = 1, 
-          max = 64, 
+          max = 32, 
           value = 1, 
           width = 23, 
           height = 23, 
