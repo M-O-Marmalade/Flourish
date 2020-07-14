@@ -1,12 +1,12 @@
 # FLOURISH
 A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios, etc
 
-![Flourish](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishsample.png)
+![Flourish](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishsample.PNG)
 
 # HOW TO USE
 
 ## Controls
-![Flourish Window](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishwindow.png)
+![Flourish Window](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishwindow.PNG)
 + Move the Time slider (indicated by the ![clock](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/clock.bmp) icon) to spread the notes over time
 + Move the Tension slider (indicated by the ![curve](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/curve.bmp) icon) to change the distribution of the notes
 + Move the Offset slider (indicated by the ![Arrows](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/arrows.bmp) icon) to shift all notes over time
