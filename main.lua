@@ -1,6 +1,11 @@
 --Flourish - main.lua--
 --DEBUG CONTROLS-------------------------------
 local debug_mode = false 
+
+if debug_mode then
+  _AUTO_RELOAD_DEBUG = true
+end
+
 local auto_apply = true 
 
 local flourishtotalclock 
@@ -19,6 +24,8 @@ local clocktempa
 local clocktempb
 local clocktempc
 local clocktempd 
+
+
 --GLOBALS-------------------------------------------------------------------------------------------- 
 local app = renoise.app() 
 local song = nil 
@@ -29,10 +36,15 @@ local track_type = nil
 local line_index = 0 
 
 local time = 0 
+local time_max = 2100
 local time_multiplier = 1 
+local time_multiplier_max = 64
 local tension = 1 
+local tension_max = 0.999
 local time_offset = 0 
+local time_offset_max = 6400
 local time_offset_multiplier = 1 
+local time_offset_multiplier_max = 64
 local destructive = false 
 
 local cur_lin_ref = nil 
@@ -52,11 +64,9 @@ local flourish_window_obj = nil
 local flourish_window_created = nil 
 local window_title = nil 
 local window_content = nil 
-
---DEBUG SETUP---------------------------------
-if debug_mode then
-  _AUTO_RELOAD_DEBUG = true
-end
+local sliders_width = 22
+local sliders_height = 127
+local multipliers_size = 23
 
 --SHOW STATUS---------------------------------------------------------------------------------------- 
 local function show_status(message) 
@@ -177,10 +187,10 @@ local function flourish()
     clock2 = 0 
     clock3 = 0 
     clock4 = 0
-  clock3a = 0 
-  clock3b = 0 
-  clock3c = 0 
-  clock3d = 0 
+    clock3a = 0 
+    clock3b = 0 
+    clock3c = 0 
+    clock3d = 0 
     clocktemp = os.clock() 
   end 
   --clear the line that we're flourishing 
@@ -304,7 +314,7 @@ local function flourish()
 
 
     if debug_mode then 
-      clock3 = clock3 + os.clock() - clocktemp 
+      clock3 = clock3 + os.clock() - clocktemp
       clocktemp = os.clock()
       --print("new_lin_index: ", new_lin_index)
     end 
@@ -313,14 +323,15 @@ local function flourish()
     local new_pat_index = song.sequencer:pattern(new_seq_index)
   
     --find correct note column reference to copy to 
-    local column_to_copy_to = song.patterns[new_pat_index].tracks[track_index]:line(new_lin_index):note_column(i) 
-    if destructive then --if we are not preserving what we end up flourishing over... 
+    local column_to_copy_to = song.patterns[new_pat_index].tracks[track_index]:line(new_lin_index):note_column(i)
+    if destructive then --if we are not preserving what we end up flourishing over...
 
       --...clear the columns where we previously moved our notes to 
-      song.patterns[pats_to_clear[i]].tracks[track_index]:line(lins_to_clear[i]):note_column(i):clear() 
-      --...store/update our new columns to clear next time around 
-      pats_to_clear[i] = new_pat_index 
-      lins_to_clear[i] = new_lin_index 
+      song.patterns[pats_to_clear[i]].tracks[track_index]:line(lins_to_clear[i]):note_column(i):clear()
+      --...store/update our new columns to clear next time around
+      pats_to_clear[i] = new_pat_index
+      lins_to_clear[i] = new_lin_index
+      
     else --if we are preserving what we end up flourishing over... 
       --get a reference to the column where we previously stored values from 
       local clmn_to_restore_to = song.patterns[column_pats_to_store[i]].tracks[track_index]:line(column_lins_to_store[i]):note_column(i) 
@@ -375,10 +386,10 @@ local function flourish()
     print("Clock1: ", clock1) 
     print("Clock2: ", clock2) 
     print("Clock3: ", clock3) 
-  print("clock3a: ", clock3a) 
-  print("clock3b: ", clock3b) 
-  print("clock3c: ", clock3c) 
-  print("clock3d: ", clock3d) 
+    print("clock3a: ", clock3a) 
+    print("clock3b: ", clock3b) 
+    print("clock3c: ", clock3c) 
+    print("clock3d: ", clock3d) 
     print("Clock4: ", clock4)
 
   end 
@@ -415,11 +426,11 @@ function create_flourish_window()
         vb:minislider { 
           id = "time_slider", 
           tooltip = "The time over which to spread the notes", 
-          min = -2100, 
-          max = 2100, 
+          min = -time_max, 
+          max = time_max, 
           value = 0, 
-          width = 22, 
-          height = 127, 
+          width = sliders_width, 
+          height = sliders_height, 
           notifier = function(value) 
             time = -value 
             if debug_mode then show_status(("Time: %.2f"):format(time)) end 
@@ -436,11 +447,11 @@ function create_flourish_window()
         vb:minislider { 
           id = "tension_slider", 
           tooltip = "Distribution of the notes", 
-          min = -0.999, 
-          max = 0.999, 
+          min = -tension_max, 
+          max = tension_max, 
           value = 0, 
-          width = 22, 
-          height = 127, 
+          width = sliders_width, 
+          height = sliders_height, 
           notifier = function(value) 
             tension = value 
             if debug_mode then show_status(("Tension: %.2f"):format(tension)) end 
@@ -457,11 +468,11 @@ function create_flourish_window()
         vb:minislider { 
           id = "offset_slider", 
           tooltip = "Position offset", 
-          min = -6400, 
-          max = 6400, 
+          min = -time_offset_max, 
+          max = time_offset_max, 
           value = 0, 
-          width = 22, 
-          height = 127, 
+          width = sliders_width, 
+          height = sliders_height, 
           notifier = function(value) 
             time_offset = -value 
             if debug_mode then show_status(("Offset: %.2f"):format(time_offset)) end 
@@ -476,10 +487,10 @@ function create_flourish_window()
           id = "time_multiplier", 
           tooltip = "Time multiplier", 
           min = 1, 
-          max = 32, 
+          max = time_multiplier_max, 
           value = 1, 
-          width = 23, 
-          height = 23, 
+          width = multipliers_size, 
+          height = multipliers_size, 
           notifier = function(value) 
             time_multiplier = value 
             if auto_apply then flourish() end 
@@ -503,10 +514,10 @@ function create_flourish_window()
           id = "offset_multiplier", 
           tooltip = "Offset multiplier", 
           min = 1, 
-          max = 32, 
+          max = time_offset_multiplier_max, 
           value = 1, 
-          width = 23, 
-          height = 23, 
+          width = multipliers_size, 
+          height = multipliers_size, 
           notifier = function(value) 
             time_offset_multiplier = value 
             if auto_apply then flourish() end 
@@ -545,14 +556,149 @@ end--end function
 local function key_handler(dialog, key) 
   if key.name == "space" then 
     if key.modifiers == "" or key.modifiers == "control" then 
-      if key.state == "pressed" then 
-        song.transport:start_at(start_pos) 
+      if key.state == "pressed" then
+        if not key.repeated then
+          if not song.transport.playing then
+            song.transport:start_at(start_pos) 
+          end
+        end
       elseif key.state == "released" then 
         song.transport:stop() 
       end 
     end 
   end 
+  
+  if key.name == "z" then  
+    if key.modifiers == "control" then    
+      if key.state == "pressed" then
+        song:undo()
+      end
+    elseif key.modifiers == "shift + control" then
+      if key.state == "pressed" then
+        song:redo()
+      end
+    end
+  end
+  
+  if key.name == "down" then
+    if key.modifiers == "" then
+      if key.state == "pressed" then        
+      
+        local edit_pos = song.transport.edit_pos
+        local seq_lines = #song.patterns[song.sequencer:pattern(edit_pos.sequence)].tracks[track_index].lines
+      
+        edit_pos.line = edit_pos.line + 1
+      
+        if edit_pos.line > seq_lines then
+          edit_pos.sequence = edit_pos.sequence + 1
+          edit_pos.line = 1
+          if edit_pos.sequence > #song.sequencer.pattern_sequence then
+            edit_pos.sequence = 1
+          end
+        end
+       
+        song.transport.edit_pos = edit_pos
+      end
+    elseif key.modifiers == "control" then
+      if key.state == "pressed" then
+        time = time + 1
+        if time >= 2100 then
+          time = 2100
+        end
+        vb.views.time_slider.value = -time
+      end
+    end
+  
+  elseif key.name == "up" then
+    if key.modifiers == "" then
+      if key.state == "pressed" then        
+      
+        local edit_pos = song.transport.edit_pos
 
+      
+        edit_pos.line = edit_pos.line - 1
+      
+        if edit_pos.line < 1 then
+          edit_pos.sequence = edit_pos.sequence - 1          
+          
+          if edit_pos.sequence < 1 then
+            edit_pos.sequence = #song.sequencer.pattern_sequence           
+          end
+          
+          edit_pos.line = #song.patterns[song.sequencer:pattern(edit_pos.sequence)].tracks[track_index].lines
+          
+        end
+       
+        song.transport.edit_pos = edit_pos
+      end
+    elseif key.modifiers == "control" then
+      if key.state == "pressed" then
+        time = time - 1
+        if time <= -time_max then
+          time = -time_max
+        end
+        vb.views.time_slider.value = -time
+      end
+    end
+  elseif key.name == "right" then
+    if key.modifiers == "" then
+      if key.state == "pressed" then        
+      
+        local edit_track = song.selected_track_index + 1
+        local total_tracks = #song.tracks
+      
+        if edit_track > total_tracks then
+          edit_track = 1          
+        end
+       
+        song.selected_track_index = edit_track
+      end
+    elseif key.modifiers == "control" then
+      if key.state == "pressed" then
+        time_multiplier = time_multiplier + 1
+        if time_multiplier >= time_multiplier_max then
+          time_multiplier = time_multiplier_max
+        end
+        vb.views.time_multiplier.value = time_multiplier
+      end
+    end
+  elseif key.name == "left" then
+    if key.modifiers == "" then
+      if key.state == "pressed" then        
+      
+        local edit_track = song.selected_track_index - 1
+        local total_tracks = #song.tracks
+      
+        if edit_track < 1 then
+          edit_track = total_tracks         
+        end
+       
+        song.selected_track_index = edit_track
+      end
+    elseif key.modifiers == "control" then
+      if key.state == "pressed" then
+        time_multiplier = time_multiplier - 1
+        if time_multiplier <= 1 then
+          time_multiplier = 1
+        end
+        vb.views.time_multiplier.value = time_multiplier
+      end
+    end
+  end
+  
+  if key.name == "x" then
+    if key.modifiers == "shift + control" then
+      if key.state == "pressed" then
+        if key.repeated == false then        
+          get_current_line()
+          if track_type == 1 then
+            update_text()
+          end
+        end
+      end
+    end
+  end
+  
   -- close on escape... 
   if (key.modifiers == "" and key.name == "esc") then 
     dialog:close() 
@@ -561,15 +707,18 @@ end
 
 --KEY HANDLER OPTIONS-------------------------------------------------------------------------------- 
 local key_handler_options = { 
-  send_key_repeat = false, 
+  send_key_repeat = true, 
   send_key_release = true 
 } 
 
 --SHOW FLOURISH WINDOW------------------------------------------------------------------------------- 
 local function show_flourish_window() 
   if debug_mode then print("SHOW_FLOURISH_WINDOW()") end 
-  flourish_window_obj = app:show_custom_dialog(window_title, window_content, key_handler, key_handler_options) 
-end 
+  if not flourish_window_obj or not flourish_window_obj.visible then
+    flourish_window_obj = app:show_custom_dialog(window_title, window_content, key_handler, key_handler_options)
+  else flourish_window_obj:show()
+  end
+end
 
 --MAIN FUNCTION-------------------------------------------------------------------------------------- 
 local function main_function() 
@@ -597,7 +746,7 @@ renoise.tool():add_menu_entry {
 } 
 
 renoise.tool():add_menu_entry { 
-  name = "Main Menu:Tools:M.O.Marmalade:Flourish - Reveal Window...", 
+  name = "Main Menu:Tools:M.O.Marmalade:Flourish - Restore Window...", 
   invoke = function() show_window_only() end 
 } 
 
@@ -612,6 +761,6 @@ renoise.tool():add_keybinding {
 } 
 
 renoise.tool():add_keybinding { 
-  name = "Global:Tools:Flourish - Reveal Window...", 
+  name = "Global:Tools:Flourish - Restore Window...", 
   invoke = function() show_flourish_window() end 
 } 
