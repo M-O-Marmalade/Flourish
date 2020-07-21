@@ -15,18 +15,15 @@ A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios
 + Click the Help![Question Mark](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/question.bmp) button to view this page at any time
 + While the Flourish window is in focus, you can hold the [SPACEBAR] to preview the currently edited selection
 
-**Note:** The more lines/patterns your currently edited flourish spans over, the more the tool will lag. Flourishes spanning over huge distances *should* be a rare thing in most cases, though.
+**Note:** The more lines/patterns your currently edited flourish spans over, the more the tool will lag.
 
 ## Selecting a Line/Revealing the Flourish Window
 + Flourish uses the pattern edit cursor's position to select a line for processing (it does not use the box selection or playback position to specify lines/notes)\
 ![ExampleGIF1](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishexample1.gif)
 
-
-+ Use the keyboard shortcut or menu entries to select a line and open the Flourish window (there is also a "Reveal Window" menu entry/keyboard shortcut that will allow you to open the Flourish window without setting a new line to edit, allowing you to continue editing your currently selected line)\
-![Tools Menu](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/toolsmenu.jpg)\
++ You can use the **right-click menu** or **user-assignable keyboard shortcut** to activate Flourish on the currently edited line\
 ![Right Click Menu](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/rightclick.jpg)\
-![Keyboard Shortcut](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/keyshort.jpg)
-
+![Keyboard Shortcut](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/keyboardshortcut.jpg)
 
 # HOW TO INSTALL
 1. **Download** the tool from this repository\
