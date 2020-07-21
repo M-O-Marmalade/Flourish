@@ -19,7 +19,7 @@ A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios
 
 ## Selecting a Line/Revealing the Flourish Window
 + Flourish uses the pattern edit cursor's position to select a line for processing (it does not use the box selection or playback position to specify lines/notes)\
-![Processing](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/processing.jpg)
+![ExampleGIF1](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishexample1.gif)
 
 
 + Use the keyboard shortcut or menu entries to select a line and open the Flourish window (there is also a "Reveal Window" menu entry/keyboard shortcut that will allow you to open the Flourish window without setting a new line to edit, allowing you to continue editing your currently selected line)\
