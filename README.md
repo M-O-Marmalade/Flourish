@@ -39,7 +39,7 @@ A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios
 
 
 4. **Drag and Drop** the renamed folder onto an open Renoise window to install the tool\
-![Drag n' Drop](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/dragndrop.gif)
+![Drag n' Drop](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/dragndropflourish.gif)
 
 
 ...and it's ready to use! (The installation files can now be deleted)
