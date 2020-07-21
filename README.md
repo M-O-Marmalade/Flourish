@@ -27,19 +27,19 @@ A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios
 
 # HOW TO INSTALL
 1. **Download** the tool from this repository\
-![Download](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourish1.jpg)
+![Download](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/downloadflourish.gif)
 
 
 2. **Extract** the *"com.MOMarmalade.Flourish.xrnx-master"* folder from the .zip file\
-![Extract](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/extract.jpg)
+![Extract](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/extractflourish.gif)
 
 
 3. **Rename** the extracted folder to remove the *"-master"* from the end of the name\
-![Rename](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/renameit.jpg)
+![Rename](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/renameflourish.gif)
 
 
 4. **Drag and Drop** the renamed folder onto an open Renoise window to install the tool\
-![Drag n' Drop](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/dragndrop.jpg)
+![Drag n' Drop](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/dragndrop.gif)
 
 
 ...and it's ready to use! (The installation files can now be deleted)
