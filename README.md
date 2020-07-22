@@ -3,8 +3,6 @@ A custom tool for Renoise, used to create flourishes, strums, ripples, arpeggios
 
 ![Flourish](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishsample.PNG)
 
-# HOW TO USE
-
 ## Controls
 ![Flourish Window](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishwindow.PNG)
 + Move the Time![clock](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/clock.bmp) slider to spread the notes over time (the range of this slider can be extended by the rotary knob just below it)
@@ -17,7 +15,7 @@ A custom tool for Renoise, used to create flourishes, strums, ripples, arpeggios
 
 **Note:** The more lines/patterns your currently edited flourish spans over, the more the tool will lag.
 
-## Selecting a Line/Revealing the Flourish Window
+## Activating Flourish on a Line
 + Flourish uses the pattern edit cursor's position to select a line for processing (it does not support box selection)\
 ![ExampleGIF1](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishexample1.gif)
 
