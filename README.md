@@ -11,7 +11,6 @@ A custom tool for Renoise, used to create flourishes, strums, ripples, arpeggios
 + Click the Non-Destructive![stilts](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/stilts.bmp)/![steamroller](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/steamroller.bmp) button to toggle Non-Destructive Mode on/off
 + Use the "Set Line" button (or the keyboard shortcut/menu entries) to set a new line to be edited by Flourish
 + Click the Help![Question Mark](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/question.bmp) button to view this page at any time
-+ While the Flourish window is in focus, you can hold the [SPACEBAR] to preview the currently edited selection
 
 **Note:** The more lines/patterns your currently edited flourish spans over, the more the tool will lag.
 
@@ -22,6 +21,14 @@ A custom tool for Renoise, used to create flourishes, strums, ripples, arpeggios
 + You can use the **right-click menu** or **user-assignable keyboard shortcut** to activate Flourish on the currently edited line\
 ![Right Click Menu](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/rightclick.jpg)\
 ![Keyboard Shortcut](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/keyboardshortcut.jpg)
+
+## Keyboard Shortcuts
+While the Flourish window is in focus, there are some keyboard shortcuts supported by the tool
++ Hold the **[SPACEBAR]** to preview the currently processed flourish/chord
++ Use the **[ARROW KEYS ↕↔]** to navigate the edit cursor
++ Press **[CTRL + SHIFT + X]** to select a new line to be processed
++ Press **[CTRL + ↕]** to move the Time slider
++ Press **[CTRL + ↔]** to increase/decrease the Time multiplier knob
 
 # HOW TO INSTALL
 1. **Download** the tool from this repository\
