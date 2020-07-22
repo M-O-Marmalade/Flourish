@@ -1,5 +1,5 @@
 # FLOURISH
-A custom tool for Renoise, used to create strums, flourishes, ripples, arpeggios, etc
+A custom tool for Renoise, used to create flourishes, strums, ripples, arpeggios, etc
 
 ![Flourish](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishsample.PNG)
 
