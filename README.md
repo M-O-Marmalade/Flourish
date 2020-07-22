@@ -18,7 +18,7 @@ A custom tool for Renoise, used to create flourishes, strums, ripples, arpeggios
 **Note:** The more lines/patterns your currently edited flourish spans over, the more the tool will lag.
 
 ## Selecting a Line/Revealing the Flourish Window
-+ Flourish uses the pattern edit cursor's position to select a line for processing (it does not use the box selection or playback position to specify lines/notes)\
++ Flourish uses the pattern edit cursor's position to select a line for processing (it does not support box selection)\
 ![ExampleGIF1](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishexample1.gif)
 
 + You can use the **right-click menu** or **user-assignable keyboard shortcut** to activate Flourish on the currently edited line\
