@@ -25,10 +25,10 @@ A custom tool for Renoise, used to create flourishes, strums, ripples, arpeggios
 ## Keyboard Shortcuts
 While the Flourish window is in focus, there are some keyboard shortcuts supported by the tool
 + Hold the **[SPACEBAR]** to preview the currently processed flourish/chord
-+ Use the **[ARROW KEYS ↕↔]** to navigate the edit cursor
++ Use the **[ARROW KEYS ![Up/Down Arrows](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/updownArrows.png)![Left/Right Arrows](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/leftrightArrows.png)]** to navigate the edit cursor
 + Press **[CTRL + SHIFT + X]** to select a new line to be processed
-+ Press **[CTRL + ↕]** to move the Time slider
-+ Press **[CTRL + ↔]** to increase/decrease the Time multiplier knob
++ Press **[CTRL + ![Up/Down Arrows](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/updownArrows.png)]** to move the Time slider
++ Press **[CTRL + ![Left/Right Arrows](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/leftrightArrows.png)]** to increase/decrease the Time multiplier knob
 
 # HOW TO INSTALL
 1. **Download** the tool from this repository\
