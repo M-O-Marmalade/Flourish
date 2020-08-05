@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RenoiseScriptingTool doc_version="0">
   <Name>Flourish</Name>
-  <Author>MOMarmalade [xephyrpanda@yahoo.com]</Author>
   <Id>mom.MOMarmalade.Flourish</Id>
-  <Version>1.0</Version>
+  <Version>1</Version>
   <ApiVersion>6</ApiVersion>
-  <Category>Pattern Editor</Category>
+  <Author>MOMarmalade [xephyrpanda@yahoo.com]</Author>
+  <AutoUpgraded>false</AutoUpgraded>
+  <Category>Pattern Editor, Note, Helper, Chord, Strum</Category>
   <Description>A tool to create flourishes, strums, arpeggios, ripples, etc.</Description>
   <Homepage>https://xephyrpanda.wixsite.com/citrus64</Homepage>
+  <Platform/>
+  <Icon/>
 </RenoiseScriptingTool>
