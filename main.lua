@@ -200,7 +200,7 @@ local function flourish()
   local tim_offset = time_offset * time_offset_multiplier 
   local tens_factor
   local tens_factor_temp
-  local div_factor = 1/notes_detected  
+  local div_factor = 1/(notes_detected - 1) 
   
   if time < 0 then
     tens_factor_temp = -tension
@@ -216,10 +216,10 @@ local function flourish()
   end
 
   if debug_mode then 
-	print("tension: ", tension)
-	print("time: ", time)
-	print("tens_factor: ", tens_factor)
-	print("tens_factor_temp: ", tens_factor_temp)
+  print("tension: ", tension)
+  print("time: ", time)
+  print("tens_factor: ", tens_factor)
+  print("tens_factor_temp: ", tens_factor_temp)
     clock1 = os.clock() - clocktemp 
   end 
   for i = 1, notes_detected do  --for each of the notes detected on the current line... 
@@ -232,8 +232,8 @@ local function flourish()
     if debug_mode then 
       clock2 = clock2 + os.clock() - clocktemp 
       clocktemp = os.clock()
-      --print("line_index: ",line_index) 
-      --print("line_index_offset: ",line_index_offset) 
+      print("line_index: ",line_index) 
+      print("line_index_offset: ",line_index_offset) 
     end 
 
     --...find correct sequence index, and line index in that sequence, to copy this note to... 
@@ -258,53 +258,53 @@ local function flourish()
     if debug_mode then
       clocktempb = os.clock()
     end
-	
-	if time > 0 then
-	  while not foundnew do
-	  
-	    --get the amount of lines in the current pattern 
-        local lines_in_this_pattern = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
-	  
-	     --if our line index plus our offset is greater than the amount of lines in this pattern... 
-        if new_lin_index + new_offset > lines_in_this_pattern then 
-          new_seq_index = new_seq_index + 1 
+  
+  if new_offset > 0 then --if time is positive
+    while not foundnew do
+    
+      --get the amount of lines in the current pattern 
+      local lines_in_this_pattern = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
+    
+      --if our line index plus our offset is greater than the amount of lines in this pattern... 
+      if new_lin_index + new_offset > lines_in_this_pattern then 
+        new_seq_index = new_seq_index + 1 
          
-          if new_seq_index > sequence_total then --if we reach the end of the sequence, wrap back to beginning
-            new_seq_index = 1
-          end
+        if new_seq_index > sequence_total then --if we reach the end of the sequence, wrap back to beginning
+          new_seq_index = 1
+        end
          
-          new_offset = new_offset - (lines_in_this_pattern - new_lin_index)	--prepare our variables to enter the loop again into the next sequence in the song
-          new_lin_index = 0
-	    
-		else -- otherwise, if we are in the correct sequence/pattern, then...
-		  new_lin_index = new_lin_index + new_offset	--set our line index and break the loop(s)
-		  foundnew = true
-		end
-	  end
-	
-	elseif time < 0 then
-	  while not foundnew do
-		--if our line index plus our offset results in 0 or less... 
-		if new_lin_index + new_offset < 1 then 
-		  new_seq_index = new_seq_index - 1 --go to the previous sequence
-		  
-		  if new_seq_index == 0 then	--if we reach past the first sequence in the song, wrap to the last sequence
-            new_seq_index = sequence_total 
-          end
+        new_offset = new_offset - (lines_in_this_pattern - new_lin_index)  --prepare our variables to enter the loop again into the next sequence in the song
+        new_lin_index = 0
       
-		  new_offset = new_offset + new_lin_index	--set our variables for the next time through the loop for the previous sequence in the song
-		  new_lin_index = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
-		
-		else -- otherwise, if we are in the correct sequence/pattern, then...
-		  new_lin_index = new_lin_index + new_offset	--set our line index and break the loop(s)
-		  foundnew = true
-		end
-	  end
-		
-	else --if time == 0
-	  new_lin_index = new_lin_index + new_offset
-	  foundnew = true
-	end
+      else -- otherwise, if we are in the correct sequence/pattern, then...
+        new_lin_index = new_lin_index + new_offset  --set our line index and break the loop(s)
+        foundnew = true
+      end
+    end --end while loop
+  
+  elseif new_offset < 0 then --if time is negative
+    while not foundnew do
+      --if our line index plus our offset results in 0 or less... 
+      if new_lin_index + new_offset < 1 then 
+        new_seq_index = new_seq_index - 1 --go to the previous sequence
+      
+        if new_seq_index == 0 then  --if we reach past the first sequence in the song, wrap to the last sequence
+           new_seq_index = sequence_total  
+        end
+      
+        new_offset = new_offset + new_lin_index  --set our variables for the next time through the loop for the previous sequence in the song
+        new_lin_index = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
+    
+      else -- otherwise, if we are in the correct sequence/pattern, then...
+        new_lin_index = new_lin_index + new_offset  --set our line index and break the loop(s)
+        foundnew = true
+      end
+    end --end while loop
+    
+  else --if time == 0
+    new_lin_index = new_lin_index + new_offset
+    foundnew = true
+  end
 
     
     if debug_mode then
@@ -316,7 +316,8 @@ local function flourish()
     if debug_mode then 
       clock3 = clock3 + os.clock() - clocktemp
       clocktemp = os.clock()
-      --print("new_lin_index: ", new_lin_index)
+      print("new_offset: ", new_offset)
+      print("new_lin_index: ", new_lin_index)
     end 
   
     --convert sequence index to pattern index 
