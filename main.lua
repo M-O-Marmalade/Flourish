@@ -545,7 +545,7 @@ function create_flourish_window()
         height = 18, 
         bitmap = "Bitmaps/question.bmp", 
         notifier = function() 
-            app:open_url("https://github.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx") 
+            app:open_url("https://github.com/M-O-Marmalade/mom.MOMarmalade.Flourish.xrnx") 
         end 
       } 
     }--horizontal aligner close 
@@ -742,26 +742,26 @@ end
 --MENU/HOTKEY ENTRIES-------------------------------------------------------------------------------- 
 
 renoise.tool():add_menu_entry { 
-  name = "Main Menu:Tools:M.O.Marmalade:Flourish...", 
+  name = "Main Menu:Tools:Flourish...", 
   invoke = function() main_function() end 
-} 
+}
 
 renoise.tool():add_menu_entry { 
-  name = "Main Menu:Tools:M.O.Marmalade:Flourish - Restore Window...", 
+  name = "Main Menu:Tools:Flourish - Restore Window...", 
   invoke = function() show_window_only() end 
-} 
+}
 
 renoise.tool():add_menu_entry { 
   name = "Pattern Editor:Flourish...", 
   invoke = function() main_function() end 
-} 
+}
 
 renoise.tool():add_keybinding { 
   name = "Global:Tools:Flourish...", 
   invoke = function() main_function() end 
-} 
+}
 
 renoise.tool():add_keybinding { 
   name = "Global:Tools:Flourish - Restore Window...", 
   invoke = function() show_flourish_window() end 
-} 
+}
