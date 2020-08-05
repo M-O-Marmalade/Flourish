@@ -32,7 +32,7 @@ While the Flourish window is in focus, there are some keyboard shortcuts support
 
 # HOW TO INSTALL
 
-Just *download the latest version from the Releases section above!* If you would like the latest build though, you can download it by following the steps/GIFs below!
+Just *download the latest version from the Releases section above!* If you would like the latest experimental build though, you can download it by following the steps/GIFs below!
 
 1. **Download** the tool from this repository\
 ![Download](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/downloadflourish.gif)
