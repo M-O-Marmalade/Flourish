@@ -1,6 +1,6 @@
 --Flourish - main.lua--
 --DEBUG CONTROLS-------------------------------
-local debug_mode = false 
+local debug_mode = true 
 
 if debug_mode then
   _AUTO_RELOAD_DEBUG = true
@@ -222,10 +222,18 @@ local function flourish()
   print("tens_factor_temp: ", tens_factor_temp)
     clock1 = os.clock() - clocktemp 
   end 
+  
+  local pattern_traversal = 0
+  local store_pattern_lines = {}
+  
   for i = 1, notes_detected do  --for each of the notes detected on the current line... 
     if debug_mode then 
       clocktemp = os.clock() 
+      print("pattern_traversal: ",pattern_traversal)
     end 
+    
+    local current_sequence_offset = 0
+    
     --...find the correct line offset to copy to based on our current time factor 
     local line_index_offset = math.floor((((i - 1) * div_factor)^tens_factor * tim_factor + tim_offset) / 255) 
 
@@ -250,6 +258,7 @@ local function flourish()
   
   if debug_mode then
     clock3a = clock3a + os.clock() - clocktempa
+    print("new_offset: ",new_offset)
   end
    
   local foundnew = false 
@@ -262,12 +271,24 @@ local function flourish()
   if new_offset > 0 then --if time is positive
     while not foundnew do
     
-      --get the amount of lines in the current pattern 
-      local lines_in_this_pattern = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
+    local lines_in_this_pattern = nil
+    
+      --get the amount of lines in the current pattern if we don't know it yet
+    if not store_pattern_lines[current_sequence_offset] then
+        store_pattern_lines[current_sequence_offset] = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
+        lines_in_this_pattern = store_pattern_lines[current_sequence_offset]
+    else
+      lines_in_this_pattern = store_pattern_lines[current_sequence_offset]
+    end
     
       --if our line index plus our offset is greater than the amount of lines in this pattern... 
       if new_lin_index + new_offset > lines_in_this_pattern then 
-        new_seq_index = new_seq_index + 1 
+        new_seq_index = new_seq_index + 1      
+        
+        current_sequence_offset = current_sequence_offset + 1
+        if pattern_traversal < current_sequence_offset then 
+          pattern_traversal = current_sequence_offset 
+        end
          
         if new_seq_index > sequence_total then --if we reach the end of the sequence, wrap back to beginning
           new_seq_index = 1
@@ -287,6 +308,11 @@ local function flourish()
       --if our line index plus our offset results in 0 or less... 
       if new_lin_index + new_offset < 1 then 
         new_seq_index = new_seq_index - 1 --go to the previous sequence
+        
+        current_sequence_offset = current_sequence_offset - 1
+        if pattern_traversal > current_sequence_offset then 
+          pattern_traversal = current_sequence_offset 
+        end
       
         if new_seq_index == 0 then  --if we reach past the first sequence in the song, wrap to the last sequence
            new_seq_index = sequence_total  
