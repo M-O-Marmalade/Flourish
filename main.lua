@@ -596,12 +596,12 @@ function create_flourish_window()
       }, 
       vb:button { 
         id = "help_button", 
-        tooltip = "View instructions", 
+        tooltip = "Help", 
         width = 18, 
         height = 18, 
         bitmap = "Bitmaps/question.bmp", 
         notifier = function() 
-            app:open_url("https://github.com/M-O-Marmalade/mom.MOMarmalade.Flourish.xrnx") 
+            app:open_url("https://xephyrpanda.wixsite.com/citrus64/flourish") 
         end 
       } 
     }--horizontal aligner close 
