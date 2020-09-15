@@ -1,9 +1,9 @@
 # FLOURISH
 A custom tool for Renoise, used to create flourishes, strums, ripples, arpeggios, etc
 
-![Flourish](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishsample.PNG)
-
 OFFICIAL PAGE - https://xephyrpanda.wixsite.com/citrus64/flourish
+
+![Flourish](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishsample.PNG)
 
 ## Controls
 ![Flourish Window](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishwindow.PNG)
