@@ -3,6 +3,8 @@ A custom tool for Renoise, used to create flourishes, strums, ripples, arpeggios
 
 ![Flourish](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishsample.PNG)
 
+OFFICIAL PAGE - https://xephyrpanda.wixsite.com/citrus64/flourish
+
 ## Controls
 ![Flourish Window](https://raw.githubusercontent.com/M-O-Marmalade/Pix/master/flourishwindow.PNG)
 + Move the Time![clock](https://raw.githubusercontent.com/M-O-Marmalade/com.MOMarmalade.Flourish.xrnx/master/Bitmaps/clock.bmp) slider to spread the notes over time (the range of this slider can be extended by the rotary knob just below it)
