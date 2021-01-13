@@ -106,7 +106,7 @@ local function get_current_line()
     pattern_index = song.selected_pattern_index 
     track_index = song.selected_track_index 
     line_index = song.selected_line_index 
-    cur_lin_ref = song.patterns[pattern_index].tracks[track_index]:line(line_index) 
+    cur_lin_ref = song:pattern(pattern_index):track(track_index):line(line_index) 
     start_pos.sequence = sequence_index 
     start_pos.line = line_index 
     clear_columns_to_clear()--...clear our destructive columns clearing index 
@@ -133,7 +133,7 @@ local function get_current_line()
       if not cur_lin_ref:note_column(i).is_empty then notes_detected = i end 
     end 
     --...show the delay columns for the selected track... 
-    song.tracks[track_index].delay_column_visible = true 
+    song:track(track_index).delay_column_visible = true 
     --...and confirm the new line selection to the user in the status bar 
     show_status(notes_detected .. " Note Columns selected on Line " .. line_index - 1 .. " in Sequence " .. sequence_index - 1 .. " for Flourish!") 
     if flourish_window_created then --if we have already created a view window... 
@@ -180,7 +180,7 @@ local function flourish()
     end 
     if is_first_flourish then
       --clear the line that we're flourishing 
-      song.patterns[pattern_index].tracks[track_index]:line(line_index):clear()
+      song:pattern(pattern_index):track(track_index):line(line_index):clear()
     end
     --calculate our time factor to apply to our notes 
     local tim_factor = time * time_multiplier 
@@ -270,7 +270,7 @@ local function flourish()
             --get the amount of lines in the current pattern if we don't know it yet
           if not store_pattern_lines[current_sequence_offset] then
           
-              store_pattern_lines[current_sequence_offset] = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
+              store_pattern_lines[current_sequence_offset] = #song:pattern(song.sequencer:pattern(new_seq_index)):track(track_index).lines
               lines_in_this_pattern = store_pattern_lines[current_sequence_offset]
               
               if debug_mode then
@@ -332,7 +332,7 @@ local function flourish()
               --get the amount of lines in the current pattern if we don't know it yet
               if not store_pattern_lines[current_sequence_offset] then
                 
-                store_pattern_lines[current_sequence_offset] = #song.patterns[song.sequencer:pattern(new_seq_index)].tracks[track_index].lines
+                store_pattern_lines[current_sequence_offset] = #song:pattern(song.sequencer:pattern(new_seq_index)):track(track_index).lines
                 new_lin_index = store_pattern_lines[current_sequence_offset]
                 
                 if debug_mode then
@@ -374,11 +374,11 @@ local function flourish()
       local new_pat_index = song.sequencer:pattern(new_seq_index)
     
       --find correct note column reference to copy to 
-      local column_to_copy_to = song.patterns[new_pat_index].tracks[track_index]:line(new_lin_index):note_column(i)
+      local column_to_copy_to = song:pattern(new_pat_index):track(track_index):line(new_lin_index):note_column(i)
       if destructive then --if we are not preserving what we end up flourishing over...
     
         --...clear the columns where we previously moved our notes to 
-        song.patterns[pats_to_clear[i]].tracks[track_index]:line(lins_to_clear[i]):note_column(i):clear()
+        song:pattern(pats_to_clear[i]):track(track_index):line(lins_to_clear[i]):note_column(i):clear()
         --...store/update our new columns to clear next time around
         pats_to_clear[i] = new_pat_index
         lins_to_clear[i] = new_lin_index
@@ -386,7 +386,7 @@ local function flourish()
       else --if we are preserving what we end up flourishing over... 
         if not is_first_flourish then
           --get a reference to the column where we previously stored values from 
-          local clmn_to_restore_to = song.patterns[column_pats_to_store[i]].tracks[track_index]:line(column_lins_to_store[i]):note_column(i) 
+          local clmn_to_restore_to = song:pattern(column_pats_to_store[i]):track(track_index):line(column_lins_to_store[i]):note_column(i) 
           for j = 1, 7 do --restore all values for the column we are about to leave from 
             clmn_to_restore_to.note_value = column_vals_to_store[i][1] 
             clmn_to_restore_to.instrument_value = column_vals_to_store[i][2] 
@@ -642,7 +642,7 @@ local function key_handler(dialog, key)
       if key.state == "pressed" then        
       
         local edit_pos = song.transport.edit_pos
-        local seq_lines = #song.patterns[song.sequencer:pattern(edit_pos.sequence)].tracks[track_index].lines
+        local seq_lines = #song:pattern(song.sequencer:pattern(edit_pos.sequence)):track(track_index).lines
       
         edit_pos.line = edit_pos.line + 1
       
@@ -682,7 +682,7 @@ local function key_handler(dialog, key)
             edit_pos.sequence = #song.sequencer.pattern_sequence           
           end
           
-          edit_pos.line = #song.patterns[song.sequencer:pattern(edit_pos.sequence)].tracks[track_index].lines
+          edit_pos.line = #song:pattern(song.sequencer:pattern(edit_pos.sequence)):track(track_index).lines
           
         end
        
