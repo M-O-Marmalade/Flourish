@@ -1,3 +1,5 @@
+**(DEPRECATED - [Replaced with new tool!](https://github.com/M-O-Marmalade/Reform))**
+
 ![Flourish-small](Screenshots/flourish-small.png)
 
 A custom tool for Renoise, used to create flourishes, strums, ripples, arpeggios, etc
